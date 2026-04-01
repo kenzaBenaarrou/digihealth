@@ -1,0 +1,17 @@
+{
+  "@@locale": "en",
+  
+  "loginTitle": "Welcome to DigiHealth",
+  "@loginTitle": {
+    "description": "The main title on the login screen"
+  },
+  
+  "welcomeUser": "Hello {name}, your next consultation is on {date}",
+  "@welcomeUser": {
+    "description": "A welcome message with dynamic placeholders",
+    "placeholders": {
+      "name": { "type": "String" },
+      "date": { "type": "DateTime", "format": "yMd" }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "@@locale": "fr",
+  "loginTitle": "Bienvenue sur DigiHealth",
+  "welcomeUser": "Bonjour {name}, votre prochaine consultation est le {date}"
+}
