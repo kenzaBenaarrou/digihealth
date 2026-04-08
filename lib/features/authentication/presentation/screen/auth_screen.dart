@@ -13,8 +13,8 @@ class AuthScreen extends ConsumerStatefulWidget {
 }
 
 class _AuthScreenState extends ConsumerState<AuthScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailController = TextEditingController(text: "m.benouda");
+  final _passwordController = TextEditingController(text: r'7642$%#19');
   bool _obscurePassword = true;
 
   @override
@@ -175,7 +175,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     GestureDetector(
-                      onTap: !isLoading
+                      onTap: isLoading
                           ? null
                           : () => ref
                               .read(keepSessionActiveProvider.notifier)

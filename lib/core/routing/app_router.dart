@@ -1,4 +1,4 @@
-import 'package:digihealth/features/authentication/presentation/auth_screen.dart';
+import 'package:digihealth/features/authentication/presentation/screen/auth_screen.dart';
 import 'package:digihealth/features/authentication/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

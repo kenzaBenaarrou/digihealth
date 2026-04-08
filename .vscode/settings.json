@@ -7,5 +7,8 @@
     "flutterTools.displaySignalsContextMenu": false,
     "dart.flutterAdditionalArgs": [
         "--device-logs-filter=^(?!.*(I/MESA|exportSyncFdForQSRILocked)).*$"
-    ]
+    ],
+    "dart.flutterDaemonLogFile": "flutter-daemon.log",
+    "dart.debugExternalPackageLibraries": false,
+    "dart.debugSdkLibraries": false
 }

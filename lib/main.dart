@@ -25,9 +25,10 @@ class MyApp extends ConsumerWidget {
     final goRouter = ref.watch(goRouterProvider);
     final locale = ref.watch(localeProviderProvider);
     return ScreenUtilInit(
-      designSize: const Size(360, 690),
+      designSize: const Size(375, 812),
       minTextAdapt: true,
-      splitScreenMode: true,
+      splitScreenMode: false,
+      useInheritedMediaQuery: true,
       builder: (context, child) {
         return MaterialApp.router(
           locale: Locale(locale),
