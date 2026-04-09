@@ -1,5 +1,6 @@
 import 'package:digihealth/features/authentication/presentation/screen/auth_screen.dart';
 import 'package:digihealth/features/authentication/provider/auth_provider.dart';
+import 'package:digihealth/features/home/presentation/main_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,16 +21,17 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       refreshListenable: notifier,
       initialLocation: '/auth',
       redirect: (context, state) {
-        final authStatus = ref.read(authNotifierProvider);
+        final authState = ref.read(authNotifierProvider);
         final isLoggingIn = state.matchedLocation == '/auth';
-        if (authStatus == AuthStatus.unknown ||
-            authStatus == AuthStatus.loading) {
+
+        if (authState.status == AuthStatus.unknown ||
+            authState.status == AuthStatus.loading) {
           return null;
         }
-        if (authStatus == AuthStatus.unauthenticated && !isLoggingIn) {
+        if (authState.status == AuthStatus.unauthenticated && !isLoggingIn) {
           return '/auth';
         }
-        if (authStatus == AuthStatus.authenticated && isLoggingIn) {
+        if (authState.status == AuthStatus.authenticated && isLoggingIn) {
           return '/dashboard';
         }
         return null;
@@ -39,6 +41,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           path: '/auth',
           name: 'auth',
           builder: (context, state) => const AuthScreen(),
+        ),
+        GoRoute(
+          path: '/dashboard',
+          name: 'dashboard',
+          builder: (context, state) => const MainNavigation(),
         ),
       ]);
 });

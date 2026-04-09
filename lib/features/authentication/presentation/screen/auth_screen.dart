@@ -164,7 +164,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   onPressed: isLoading ? null : () {},
                   child: Text(
                     'Mot de passe oublié',
-                    style: TextStyle(color: Colors.grey[400], fontSize: 10.sp),
+                    style: TextStyle(color: Colors.grey[400], fontSize: 9.sp),
                   ),
                 ),
               ),
@@ -208,7 +208,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           Text(
                             'Garder ma session active',
                             style: TextStyle(
-                                color: Colors.cyanAccent, fontSize: 7.5.sp),
+                                color: Colors.cyanAccent, fontSize: 5.9.sp),
                           ),
                         ],
                       ),

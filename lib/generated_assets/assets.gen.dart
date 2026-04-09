@@ -18,9 +18,39 @@ class $AssetsImagesGen {
   AssetGenImage get background =>
       const AssetGenImage('assets/images/background.png');
 
+  /// File path: assets/images/circles.png
+  AssetGenImage get circles => const AssetGenImage('assets/images/circles.png');
+
+  /// File path: assets/images/consultation_logo.png
+  AssetGenImage get consultationLogo =>
+      const AssetGenImage('assets/images/consultation_logo.png');
+
+  /// File path: assets/images/cs.png
+  AssetGenImage get cs => const AssetGenImage('assets/images/cs.png');
+
+  /// File path: assets/images/cu.png
+  AssetGenImage get cu => const AssetGenImage('assets/images/cu.png');
+
+  /// File path: assets/images/diabete.png
+  AssetGenImage get diabete => const AssetGenImage('assets/images/diabete.png');
+
   /// File path: assets/images/digihealth.png
   AssetGenImage get digihealth =>
       const AssetGenImage('assets/images/digihealth.png');
+
+  /// File path: assets/images/digihealth_logo.png
+  AssetGenImage get digihealthLogo =>
+      const AssetGenImage('assets/images/digihealth_logo.png');
+
+  /// File path: assets/images/hta.png
+  AssetGenImage get hta => const AssetGenImage('assets/images/hta.png');
+
+  /// File path: assets/images/kids.png
+  AssetGenImage get kids => const AssetGenImage('assets/images/kids.png');
+
+  /// File path: assets/images/life_signal.png
+  AssetGenImage get lifeSignal =>
+      const AssetGenImage('assets/images/life_signal.png');
 
   /// File path: assets/images/login_panel.png
   AssetGenImage get loginPanel =>
@@ -32,9 +62,27 @@ class $AssetsImagesGen {
   /// File path: assets/images/mediot.png
   AssetGenImage get mediot => const AssetGenImage('assets/images/mediot.png');
 
+  /// File path: assets/images/pni.png
+  AssetGenImage get pni => const AssetGenImage('assets/images/pni.png');
+
   /// List of all assets
-  List<AssetGenImage> get values =>
-      [background, digihealth, loginPanel, map, mediot];
+  List<AssetGenImage> get values => [
+        background,
+        circles,
+        consultationLogo,
+        cs,
+        cu,
+        diabete,
+        digihealth,
+        digihealthLogo,
+        hta,
+        kids,
+        lifeSignal,
+        loginPanel,
+        map,
+        mediot,
+        pni
+      ];
 }
 
 class Assets {

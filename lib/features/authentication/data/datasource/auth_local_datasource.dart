@@ -1,6 +1,7 @@
 import 'package:digihealth/features/authentication/data/models/user_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
 
 final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
   return AuthLocalDatasourceImpl();
@@ -11,6 +12,7 @@ abstract class AuthLocalDataSource {
   Future<String?> getToken();
   Future<void> saveRefreshToken(String refreshToken);
   Future<void> saveUser(UserModel user);
+  Future<UserModel?> getUser();
   Future<void> deleteToken();
   Future<void> deleteRefreshToken();
   Future<void> clearAll();
@@ -34,6 +36,15 @@ class AuthLocalDatasourceImpl extends AuthLocalDataSource {
   @override
   Future<void> saveUser(UserModel user) async {
     await _secureStorage.write(key: 'user', value: user.toJson().toString());
+  }
+
+  @override
+  Future<UserModel?> getUser() async {
+    final userJson = await _secureStorage.read(key: 'user');
+    if (userJson != null) {
+      return UserModel.fromJson(jsonDecode(userJson));
+    }
+    return null;
   }
 
   @override

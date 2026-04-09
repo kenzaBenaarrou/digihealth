@@ -6,11 +6,12 @@ part of 'auth_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authNotifierHash() => r'68dab60c7b26ec81d948b8612921126e7bc781e1';
+String _$authNotifierHash() => r'edd785b91dc8f949ddb2a7bcd69190771e70ba41';
 
 /// See also [AuthNotifier].
 @ProviderFor(AuthNotifier)
-final authNotifierProvider = NotifierProvider<AuthNotifier, AuthState>.internal(
+final authNotifierProvider =
+    AutoDisposeNotifierProvider<AuthNotifier, AuthState>.internal(
   AuthNotifier.new,
   name: r'authNotifierProvider',
   debugGetCreateSourceHash:
@@ -19,7 +20,7 @@ final authNotifierProvider = NotifierProvider<AuthNotifier, AuthState>.internal(
   allTransitiveDependencies: null,
 );
 
-typedef _$AuthNotifier = Notifier<AuthState>;
+typedef _$AuthNotifier = AutoDisposeNotifier<AuthState>;
 String _$keepSessionActiveHash() => r'ba0ab478242be66c6b55790e48ed6c8b49eb45d8';
 
 /// See also [KeepSessionActive].

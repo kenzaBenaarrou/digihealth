@@ -1,4 +1,5 @@
 import 'package:digihealth/core/l10n/arb/locale_provider.dart';
+import 'package:digihealth/core/theme/app_theme.dart';
 import 'package:digihealth/core/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -36,15 +37,8 @@ class MyApp extends ConsumerWidget {
           supportedLocales: AppLocalizations.supportedLocales,
           title: l10n?.localeName ?? 'DigiHealth',
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-            useMaterial3: true,
-          ),
-          darkTheme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.deepPurple, brightness: Brightness.dark),
-            useMaterial3: true,
-          ),
+          theme: AppTheme.darkTheme,
+          darkTheme: AppTheme.darkTheme,
           themeMode: currentThemeMode,
           routerConfig: goRouter,
         );
