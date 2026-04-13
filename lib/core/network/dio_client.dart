@@ -15,6 +15,12 @@ final dioProvider = Provider<Dio>((ref) {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   };
+  // (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+  //   final client = HttpClient();
+  //   client.badCertificateCallback =
+  //       (X509Certificate cert, String host, int port) => true;
+  //   return client;
+  // };
   dio.interceptors.addAll([
     AuthInterceptor(ref),
     LogInterceptor(

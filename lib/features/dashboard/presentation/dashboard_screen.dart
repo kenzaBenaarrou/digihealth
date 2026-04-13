@@ -3,23 +3,37 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../generated_assets/assets.gen.dart';
-import '../../authentication/data/models/user_model.dart';
+import '../provider/dashboard_provider.dart';
+import 'widgets/age_bar.dart';
 import 'widgets/border_painter.dart';
-import 'widgets/custom_dropdown.dart';
-import 'widgets/pie_chart.dart';
+import 'widgets/patient_chart.dart';
 import 'widgets/line_chart.dart';
 
 // Provider for the filter dropdown
 final selectedFilterProvider = StateProvider<String>((ref) => "Somme");
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch dashboard data when widget initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(dashboardProvider.notifier).fetchDashboardData();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dashboardState = ref.watch(dashboardProvider);
     final authState = ref.watch(authNotifierProvider);
     final user = authState.user;
     final selectedFilter = ref.watch(selectedFilterProvider);
@@ -33,26 +47,64 @@ class DashboardScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildTopBar(),
-              _buildHeadTitle(context, 'A- PRISES EN CHARGE : 1,302,567'),
-              13.verticalSpace,
+              // _buildHeadTitle(context, 'A- PRISES EN CHARGE : 1,302,567'),
+              // 13.verticalSpace,
               // _buildMainStatCards(),
-              // 24.verticalSpace,
-              _buildCriticalDiagnostics(ref, selectedFilter, context),
+
               24.verticalSpace,
-              _buildTeleexpertise(ref, selectedFilter, context),
+              _buildSingleValue(
+                ref,
+                context,
+                "TOTAL PRISES EN CHARGE",
+                "${dashboardState.data?.total_prise_en_charge?.sum ?? 'N/A'}",
+                "2023-11-01 - 2024-10-31",
+                Assets.images.consultationLogo.image(
+                  width: 50.w,
+                  height: 50.h,
+                ),
+              ),
               24.verticalSpace,
-              _buildActeSoin(ref, context),
+              _buildConsultations(
+                ref,
+                context,
+                "CONSULTATIONS",
+                "${dashboardState.data?.consultationGenerale?.sum ?? 'N/A'}",
+                36,
+                64,
+                Assets.images.consultationLogo.image(
+                  width: 50.w,
+                  height: 50.h,
+                ),
+              ),
               24.verticalSpace,
               _buildTrancheAge(ref, context),
               24.verticalSpace,
-              _buildHeadTitle(context, 'B- PROGRAMMES DE SANTÉ PUBLIQUE'),
+              _buildSingleValue(
+                ref,
+                context,
+                "PATIENTS UNIQUES",
+                "702 567",
+                "2023-11-01 - 2024-10-31",
+                Assets.images.consultationLogo.image(
+                  width: 50.w,
+                  height: 50.h,
+                ),
+              ),
               24.verticalSpace,
-              _buildSanteScolaire(context),
+
+              _buildCriticalDiagnostics(ref, selectedFilter, context),
               24.verticalSpace,
-              _buildPNI(context),
-              24.verticalSpace,
-              _buildDepistage(context),
-              30.verticalSpace,
+              // _buildTeleexpertise(ref, selectedFilter, context),
+              // 24.verticalSpace,
+
+              // // _buildHeadTitle(context, 'B- PROGRAMMES DE SANTÉ PUBLIQUE'),
+              // // 24.verticalSpace,
+              // _buildSanteScolaire(context),
+              // 24.verticalSpace,
+              // _buildPNI(context),
+              // 24.verticalSpace,
+              // _buildDepistage(context),
+              // 30.verticalSpace,
             ],
           ),
         ),
@@ -175,7 +227,7 @@ class DashboardScreen extends ConsumerWidget {
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.h),
                 child: Text(
-                  'A-1 CONSULTATIONS GÉNÉRALES',
+                  'TOTAL PRISES EN CHARGES',
                   style: Theme.of(context).textTheme.displayMedium?.copyWith(
                         color: Colors.white,
                         fontSize: 11.sp,
@@ -184,13 +236,13 @@ class DashboardScreen extends ConsumerWidget {
                       ),
                 ),
               ),
-              CustomDropdown(
-                selectedValue: selectedFilter,
-                onChanged: (value) {
-                  ref.read(selectedFilterProvider.notifier).state = value;
-                  // You can call any function here (filter data, etc.)
-                },
-              )
+              // CustomDropdown(
+              //   selectedValue: selectedFilter,
+              //   onChanged: (value) {
+              //     ref.read(selectedFilterProvider.notifier).state = value;
+              //     // You can call any function here (filter data, etc.)
+              //   },
+              // )
             ],
           ),
         ),
@@ -200,47 +252,48 @@ class DashboardScreen extends ConsumerWidget {
           // height: 150.h,
           fit: BoxFit.cover,
         ),
-        DigiHealthLineChart(
-          totalValue: 95636,
-          spots: const [
-            FlSpot(0, 120),
-            FlSpot(0.8, 80),
-            FlSpot(1.5, 300),
-            FlSpot(2.2, 250),
-            FlSpot(3, 450),
-            FlSpot(3.8, 380),
-            FlSpot(4.5, 620),
-            FlSpot(5.2, 580),
-            FlSpot(6, 850),
-            FlSpot(6.8, 720),
-            FlSpot(7.5, 503),
-          ],
-        ),
-        16.verticalSpace,
-        // Padding(
-        //   padding: EdgeInsets.symmetric(horizontal: 20.w),
-        //   child: Column(
-        //     children: [
-        //       _buildSmallStatCard(
-        //         title: 'HTA',
-        //         value: '2,543',
-        //         color: const Color(0xFFFF6B6B),
-        //       ),
-        //       12.verticalSpace,
-        //       _buildSmallStatCard(
-        //         title: 'CANCER DU SEIN',
-        //         value: '1,234',
-        //         color: const Color(0xFFFF9F43),
-        //       ),
-        //       12.verticalSpace,
-        //       _buildSmallStatCard(
-        //         title: 'DIABÈTE',
-        //         value: '3,456',
-        //         color: const Color(0xFF00D2FF),
-        //       ),
-        //     ],
-        //   ),
+        PatientsTrendChart(),
+        // DigiHealthLineChart(
+        //   totalValue: 95636,
+        //   spots: const [
+        //     FlSpot(0, 120),
+        //     FlSpot(0.8, 80),
+        //     FlSpot(1.5, 300),
+        //     FlSpot(2.2, 250),
+        //     FlSpot(3, 450),
+        //     FlSpot(3.8, 380),
+        //     FlSpot(4.5, 620),
+        //     FlSpot(5.2, 580),
+        //     FlSpot(6, 850),
+        //     FlSpot(6.8, 720),
+        //     FlSpot(7.5, 503),
+        //   ],
         // ),
+        // 16.verticalSpace,
+        // // Padding(
+        // //   padding: EdgeInsets.symmetric(horizontal: 20.w),
+        // //   child: Column(
+        // //     children: [
+        // //       _buildSmallStatCard(
+        // //         title: 'HTA',
+        // //         value: '2,543',
+        // //         color: const Color(0xFFFF6B6B),
+        // //       ),
+        // //       12.verticalSpace,
+        // //       _buildSmallStatCard(
+        // //         title: 'CANCER DU SEIN',
+        // //         value: '1,234',
+        // //         color: const Color(0xFFFF9F43),
+        // //       ),
+        // //       12.verticalSpace,
+        // //       _buildSmallStatCard(
+        // //         title: 'DIABÈTE',
+        // //         value: '3,456',
+        // //         color: const Color(0xFF00D2FF),
+        // //       ),
+        // //     ],
+        // //   ),
+        // // ),
       ],
     );
   }
@@ -290,14 +343,15 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildActeSoin(WidgetRef ref, BuildContext context) {
+  Widget _buildSingleValue(WidgetRef ref, BuildContext context, String title,
+      String value, String soustext, Widget icon) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 10.w),
           child: Text(
-            'A-3 ACTES DE SOINS',
+            title,
             style: Theme.of(context).textTheme.displayMedium?.copyWith(
                   color: Colors.white,
                   fontSize: 11.sp,
@@ -312,11 +366,168 @@ class DashboardScreen extends ConsumerWidget {
           // height: 150.h,
           fit: BoxFit.cover,
         ),
-        DigiHealthLineChart(
-          totalValue: 258147,
-          isChart: false,
-          spots: const [],
+        Container(
+          color: const Color(0xFF0A1F38),
+          child: Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(8.w),
+                child: Row(
+                  children: [
+                    icon,
+                    12.horizontalSpace,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          value,
+                          style: TextStyle(
+                            color: Colors.cyanAccent,
+                            fontSize: 25.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          soustext,
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 7.sp,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: CornerBorderPainter(
+                    color: Colors.cyanAccent,
+                    strokeWidth: 2.5,
+                    cornerLength: 15,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
+
+        // DigiHealthLineChart(
+        //   totalValue: 258147,
+        //   isChart: false,
+        //   spots: const [],
+        // ),
+      ],
+    );
+  }
+
+  Widget _buildConsultations(WidgetRef ref, BuildContext context, String title,
+      String value, int female, int male, Widget icon) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10.w),
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                  color: Colors.white,
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                ),
+          ),
+        ),
+        // 16.verticalSpace,
+        Assets.images.lifeSignal.image(
+          width: double.infinity,
+          // height: 150.h,
+          fit: BoxFit.cover,
+        ),
+        Container(
+          color: const Color(0xFF0A1F38),
+          child: Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(8.w),
+                child: Row(
+                  children: [
+                    icon,
+                    12.horizontalSpace,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          value,
+                          style: TextStyle(
+                            color: Colors.cyanAccent,
+                            fontSize: 25.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.female,
+                                  color: Colors.cyanAccent,
+                                  size: 15.sp,
+                                ),
+                                Text(
+                                  "$female%",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 7.sp,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            8.horizontalSpace,
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.male,
+                                  color: Colors.cyanAccent,
+                                  size: 15.sp,
+                                ),
+                                Text(
+                                  "$male%",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 7.sp,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: CornerBorderPainter(
+                    color: Colors.cyanAccent,
+                    strokeWidth: 2.5,
+                    cornerLength: 15,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // DigiHealthLineChart(
+        //   totalValue: 258147,
+        //   isChart: false,
+        //   spots: const [],
+        // ),
       ],
     );
   }
@@ -328,7 +539,7 @@ class DashboardScreen extends ConsumerWidget {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 10.w),
           child: Text(
-            'A-4 RÉPARTITION PAR TRANCHE D\'ÂGE ET PAR SEXE',
+            'RÉPARTITION PAR ÂGE',
             style: Theme.of(context).textTheme.displayMedium?.copyWith(
                   color: Colors.white,
                   fontSize: 11.sp,
@@ -343,7 +554,7 @@ class DashboardScreen extends ConsumerWidget {
           // height: 150.h,
           fit: BoxFit.cover,
         ),
-        AgeDistributionChart()
+        AgeDistributionBarChart()
       ],
     );
   }
@@ -753,144 +964,131 @@ class DashboardScreen extends ConsumerWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Assets.images.hta.image(width: 50.w),
-                              16.horizontalSpace,
-                              Flexible(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '567 710',
-                                      style: TextStyle(
-                                        color: Colors.cyanAccent,
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    5.verticalSpace,
-                                    Text(
-                                      'HTA',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11.sp,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ],
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Assets.images.hta.image(width: 50.w),
+                            16.horizontalSpace,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '567 710',
+                                  style: TextStyle(
+                                    color: Colors.cyanAccent,
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              )
-                            ],
-                          ),
-                          20.verticalSpace,
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Assets.images.diabete.image(width: 50.w),
-                              16.horizontalSpace,
-                              Flexible(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '123 456',
-                                      style: TextStyle(
-                                        color: Colors.cyanAccent,
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    5.verticalSpace,
-                                    Text(
-                                      'DIABÈTE',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11.sp,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ],
+                                5.verticalSpace,
+                                Text(
+                                  'HTA',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10.sp,
+                                    fontWeight: FontWeight.w400,
+                                  ),
                                 ),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
+                              ],
+                            )
+                          ],
+                        ),
+                        20.verticalSpace,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Assets.images.diabete.image(width: 50.w),
+                            16.horizontalSpace,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '123 456',
+                                  style: TextStyle(
+                                    color: Colors.cyanAccent,
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                5.verticalSpace,
+                                Text(
+                                  'DIABÈTE',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10.sp,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      ],
                     ),
-                    8.horizontalSpace,
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Assets.images.cs.image(width: 50.w),
-                              16.horizontalSpace,
-                              Flexible(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '35 122',
-                                      style: TextStyle(
-                                        color: Colors.cyanAccent,
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    5.verticalSpace,
-                                    Text(
-                                      'CANCER DU SEIN',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11.sp,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ],
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Assets.images.cs.image(width: 50.w),
+                            16.horizontalSpace,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '35 122',
+                                  style: TextStyle(
+                                    color: Colors.cyanAccent,
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              )
-                            ],
-                          ),
-                          20.verticalSpace,
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Assets.images.cu.image(width: 50.w),
-                              16.horizontalSpace,
-                              Flexible(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '5456',
-                                      style: TextStyle(
-                                        color: Colors.cyanAccent,
-                                        fontSize: 18.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    5.verticalSpace,
-                                    Text(
-                                      'CANCER DU COL DE L\'UTÉRUS',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11.sp,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ],
+                                5.verticalSpace,
+                                Text(
+                                  'CANCER DU SEIN',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10.sp,
+                                    fontWeight: FontWeight.w400,
+                                  ),
                                 ),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
+                              ],
+                            )
+                          ],
+                        ),
+                        20.verticalSpace,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Assets.images.cu.image(width: 50.w),
+                            16.horizontalSpace,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '5456',
+                                  style: TextStyle(
+                                    color: Colors.cyanAccent,
+                                    fontSize: 18.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                5.verticalSpace,
+                                Text(
+                                  'CANCER DU COL \n DE L\'UTÉRUS',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10.sp,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      ],
                     ),
                   ],
                 ),
