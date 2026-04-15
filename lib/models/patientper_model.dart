@@ -24,7 +24,7 @@ class PatientAvgPerUmmc {
 @JsonSerializable()
 class PatientEvolution {
   final String date;
-  final int total;
+  final String total;
   PatientEvolution({required this.date, required this.total});
   factory PatientEvolution.fromJson(Map<String, dynamic> json) =>
       _$PatientEvolutionFromJson(json);

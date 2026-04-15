@@ -21,7 +21,7 @@ class DashboardResponse {
   @JsonKey(defaultValue: [])
   final List<AvgCallDurationPerSpecialiste>? avgcalldurationperspecialiste;
   @JsonKey(defaultValue: [])
-  final List<AvgCallDurationPerSpecialiste>? avgcalldurationperspecialite;
+  final List<AvgCallDurationPerSpecialite>? avgcalldurationperspecialite;
   @JsonKey(defaultValue: [])
   final List<AvgCallDurationPerUmmc>? avgcalldurationperummc;
   final SumModel? cancelled_rdv;
@@ -37,6 +37,8 @@ class DashboardResponse {
   final List<EvolutionAnnulation>? evolutionannulation;
   @JsonKey(defaultValue: [])
   final List<EvolutionBySpecialite>? evolutionbyspecialite;
+  @JsonKey(defaultValue: [])
+  final List<EvolutionBySpecialiste>? evolutionbyspecialiste;
   @JsonKey(defaultValue: [])
   final List<EvolutionCallDuration>? evolutioncallduration;
   @JsonKey(defaultValue: [])
@@ -65,8 +67,8 @@ class DashboardResponse {
   final SumModel? vaccination;
 
   DashboardResponse({
-    this.acte_soins,
     this.ages,
+    this.acte_soins,
     this.annulationperummc,
     this.avgcalldurationperspecialiste,
     this.avgcalldurationperspecialite,
@@ -81,6 +83,7 @@ class DashboardResponse {
     this.evacuation,
     this.evolutionannulation,
     this.evolutionbyspecialite,
+    this.evolutionbyspecialiste,
     this.evolutioncallduration,
     this.evolutionteleexpertise,
     this.evolutionteleexpertiseavg,

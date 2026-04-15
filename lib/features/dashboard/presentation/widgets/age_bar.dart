@@ -1,3 +1,4 @@
+import 'package:digihealth/models/age_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -5,15 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'border_painter.dart';
 
 class AgeDistributionBarChart extends StatelessWidget {
-  const AgeDistributionBarChart({super.key});
-
-  final List<AgeBarData> data = const [
-    AgeBarData(ageGroup: "0 à 6 ans", percent: 11, color: Colors.cyanAccent),
-    AgeBarData(ageGroup: "7 à 14 ans", percent: 11, color: Colors.cyanAccent),
-    AgeBarData(ageGroup: "15 à 24 ans", percent: 9, color: Colors.cyanAccent),
-    AgeBarData(ageGroup: "25 à 64 ans", percent: 52, color: Colors.cyanAccent),
-    AgeBarData(ageGroup: "+65 ans", percent: 18, color: Colors.cyanAccent),
-  ];
+  AgeModel ages;
+  AgeDistributionBarChart({super.key, required this.ages});
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +18,63 @@ class AgeDistributionBarChart extends StatelessWidget {
           Padding(
             padding: EdgeInsets.all(8.w),
             child: Column(
-              children:
-                  data.map((item) => _buildBarRow(item, context)).toList(),
+              children: [
+                _buildBarRow(
+                  AgeBarData(
+                    ageGroup: "0 à 6 ans",
+                    percent: (((ages.age_one ?? 0) /
+                                ((ages.femme ?? 0) + (ages.homme ?? 0))) *
+                            100)
+                        .round(),
+                    color: Colors.cyanAccent,
+                  ),
+                  context,
+                ),
+                _buildBarRow(
+                  AgeBarData(
+                    ageGroup: "7 à 14 ans",
+                    percent: (((ages.age_two ?? 0) /
+                                ((ages.femme ?? 0) + (ages.homme ?? 0))) *
+                            100)
+                        .round(),
+                    color: Colors.cyanAccent,
+                  ),
+                  context,
+                ),
+                _buildBarRow(
+                  AgeBarData(
+                    ageGroup: "15 à 24 ans",
+                    percent: (((ages.age_three ?? 0) /
+                                ((ages.femme ?? 0) + (ages.homme ?? 0))) *
+                            100)
+                        .round(),
+                    color: Colors.cyanAccent,
+                  ),
+                  context,
+                ),
+                _buildBarRow(
+                  AgeBarData(
+                    ageGroup: "25 à 64 ans",
+                    percent: (((ages.age_four ?? 0) /
+                                ((ages.femme ?? 0) + (ages.homme ?? 0))) *
+                            100)
+                        .round(),
+                    color: Colors.cyanAccent,
+                  ),
+                  context,
+                ),
+                _buildBarRow(
+                  AgeBarData(
+                    ageGroup: "+64 ans",
+                    percent: (((ages.age_five ?? 0) /
+                                ((ages.femme ?? 0) + (ages.homme ?? 0))) *
+                            100)
+                        .round(),
+                    color: Colors.cyanAccent,
+                  ),
+                  context,
+                ),
+              ],
             ),
           ),
           Positioned.fill(

@@ -5,6 +5,7 @@ part 'evolution_model.g.dart';
 class EvolutionBySpecialite {
   final String date_activite;
   final String specialite;
+
   final int count;
   EvolutionBySpecialite({
     required this.date_activite,
@@ -14,6 +15,24 @@ class EvolutionBySpecialite {
   factory EvolutionBySpecialite.fromJson(Map<String, dynamic> json) =>
       _$EvolutionBySpecialiteFromJson(json);
   Map<String, dynamic> toJson() => _$EvolutionBySpecialiteToJson(this);
+}
+
+@JsonSerializable()
+class EvolutionBySpecialiste {
+  final String date_activite;
+  final String specialite;
+
+  final String? specialisteN;
+  final int count;
+  EvolutionBySpecialiste({
+    required this.date_activite,
+    required this.specialite,
+    this.specialisteN,
+    required this.count,
+  });
+  factory EvolutionBySpecialiste.fromJson(Map<String, dynamic> json) =>
+      _$EvolutionBySpecialisteFromJson(json);
+  Map<String, dynamic> toJson() => _$EvolutionBySpecialisteToJson(this);
 }
 
 @JsonSerializable()

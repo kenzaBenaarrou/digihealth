@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need access to save chart images to your photo library</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to save charts</string>
 </dict>
 </plist>

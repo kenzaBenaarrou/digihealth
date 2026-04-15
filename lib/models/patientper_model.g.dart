@@ -33,7 +33,7 @@ Map<String, dynamic> _$PatientAvgPerUmmcToJson(PatientAvgPerUmmc instance) =>
 PatientEvolution _$PatientEvolutionFromJson(Map<String, dynamic> json) =>
     PatientEvolution(
       date: json['date'] as String,
-      total: (json['total'] as num).toInt(),
+      total: json['total'] as String,
     );
 
 Map<String, dynamic> _$PatientEvolutionToJson(PatientEvolution instance) =>

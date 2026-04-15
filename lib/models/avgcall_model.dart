@@ -22,3 +22,13 @@ class AvgCallDurationPerUmmc {
 
   Map<String, dynamic> toJson() => _$AvgCallDurationPerUmmcToJson(this);
 }
+@JsonSerializable()
+class AvgCallDurationPerSpecialite {
+  final String specialite;
+  final String avg_duration;
+  AvgCallDurationPerSpecialite(
+      {required this.specialite, required this.avg_duration});
+  factory AvgCallDurationPerSpecialite.fromJson(Map<String, dynamic> json) =>
+      _$AvgCallDurationPerSpecialiteFromJson(json);
+  Map<String, dynamic> toJson() => _$AvgCallDurationPerSpecialiteToJson(this);
+}

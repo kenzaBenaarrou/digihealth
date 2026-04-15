@@ -33,3 +33,17 @@ Map<String, dynamic> _$AvgCallDurationPerUmmcToJson(
       'ummc': instance.ummc,
       'avg_duration': instance.avg_duration,
     };
+
+AvgCallDurationPerSpecialite _$AvgCallDurationPerSpecialiteFromJson(
+        Map<String, dynamic> json) =>
+    AvgCallDurationPerSpecialite(
+      specialite: json['specialite'] as String,
+      avg_duration: json['avg_duration'] as String,
+    );
+
+Map<String, dynamic> _$AvgCallDurationPerSpecialiteToJson(
+        AvgCallDurationPerSpecialite instance) =>
+    <String, dynamic>{
+      'specialite': instance.specialite,
+      'avg_duration': instance.avg_duration,
+    };

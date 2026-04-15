@@ -1,10 +1,16 @@
+import 'package:digihealth/core/random/extention.dart';
 import 'package:digihealth/features/authentication/provider/auth_provider.dart';
+import 'package:digihealth/models/age_model.dart';
+import 'package:digihealth/models/evolution_model.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:intl/intl.dart';
 
 import '../../../generated_assets/assets.gen.dart';
+import '../../../models/patientper_model.dart';
 import '../provider/dashboard_provider.dart';
 import 'widgets/age_bar.dart';
 import 'widgets/border_painter.dart';
@@ -56,11 +62,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ref,
                 context,
                 "TOTAL PRISES EN CHARGE",
-                "${dashboardState.data?.total_prise_en_charge?.sum ?? 'N/A'}",
-                "2023-11-01 - 2024-10-31",
-                Assets.images.consultationLogo.image(
-                  width: 50.w,
-                  height: 50.h,
+                dashboardState.data?.total_prise_en_charge?.sum
+                        .toFormattedString() ??
+                    'N/A',
+                "${DateFormat("yyyy-MM-dd").format(DateTime.parse(dashboardState.data?.minDate?.date_activite ?? DateTime.now().toString()))} - ${DateFormat("yyyy-MM-dd").format(DateTime.parse(dashboardState.data?.maxDate?.date_activite ?? DateTime.now().toString()))}",
+                Assets.svg.priseEncharge.svg(
+                  width: 35.w,
+                  height: 35.h,
                 ),
               ),
               24.verticalSpace,
@@ -68,32 +76,39 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ref,
                 context,
                 "CONSULTATIONS",
-                "${dashboardState.data?.consultationGenerale?.sum ?? 'N/A'}",
-                36,
-                64,
-                Assets.images.consultationLogo.image(
-                  width: 50.w,
-                  height: 50.h,
+                dashboardState.data?.consultationGenerale?.sum
+                        .toFormattedString() ??
+                    'N/A',
+                "${((dashboardState.data?.ages?.femme ?? 0) / (dashboardState.data?.consultationGenerale?.sum ?? 1) * 100).round()}%",
+                "${((dashboardState.data?.ages?.homme ?? 0) / (dashboardState.data?.consultationGenerale?.sum ?? 1) * 100).round()}%",
+                Assets.svg.consultationGenerale.svg(
+                  width: 35.w,
+                  height: 35.h,
                 ),
               ),
               24.verticalSpace,
-              _buildTrancheAge(ref, context),
+              _buildTrancheAge(ref, context,
+                  dashboardState.data?.ages ?? AgeModel(femme: 0, homme: 0)),
               24.verticalSpace,
               _buildSingleValue(
                 ref,
                 context,
                 "PATIENTS UNIQUES",
-                "702 567",
-                "2023-11-01 - 2024-10-31",
-                Assets.images.consultationLogo.image(
-                  width: 50.w,
-                  height: 50.h,
+                dashboardState.data?.patienttotal?.total?.toFormattedString() ??
+                    'N/A',
+                "${DateFormat("yyyy-MM-dd").format(DateTime.parse(dashboardState.data?.minDate?.date_activite ?? DateTime.now().toString()))} - ${DateFormat("yyyy-MM-dd").format(DateTime.parse(dashboardState.data?.maxDate?.date_activite ?? DateTime.now().toString()))}",
+                Assets.svg.consultationGenerale.svg(
+                  width: 35.w,
+                  height: 35.h,
                 ),
               ),
               24.verticalSpace,
 
-              _buildCriticalDiagnostics(ref, selectedFilter, context),
+              _buildEvolutionPatient(ref, selectedFilter, context,
+                  dashboardState.data?.patientevolution ?? []),
               24.verticalSpace,
+              _buildCumulPatient(ref, selectedFilter, context,
+                  dashboardState.data?.evolutionteleexpertiseavg ?? []),
               // _buildTeleexpertise(ref, selectedFilter, context),
               // 24.verticalSpace,
 
@@ -213,87 +228,59 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildCriticalDiagnostics(
-      WidgetRef ref, String selectedFilter, BuildContext context) {
+  Widget _buildEvolutionPatient(WidgetRef ref, String selectedFilter,
+      BuildContext context, dynamic data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitleWithLifesign(context, 'EVOLUTION DES PATIENTS'),
+        PatientsTrendChart<PatientEvolution>(
+          data: data,
+          chartTitle: 'Patients',
+          getLabel: (item) => item.date,
+          getValue: (item) => double.tryParse(item.total) ?? 0,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCumulPatient(WidgetRef ref, String selectedFilter,
+      BuildContext context, dynamic data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitleWithLifesign(context, 'CUMUL DES PATIENTS'),
+        PatientsTrendChart<EvolutionTeleExpertiseAvg>(
+          data: data,
+          chartTitle: 'CUMUL PATIENTS',
+          getLabel: (item) => item.date_activite,
+          getValue: (item) => double.tryParse(item.AVG) ?? 0,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTitleWithLifesign(BuildContext context, String title) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10.w),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.h),
-                child: Text(
-                  'TOTAL PRISES EN CHARGES',
-                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                        color: Colors.white,
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
-                      ),
+          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                  color: Colors.white,
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
                 ),
-              ),
-              // CustomDropdown(
-              //   selectedValue: selectedFilter,
-              //   onChanged: (value) {
-              //     ref.read(selectedFilterProvider.notifier).state = value;
-              //     // You can call any function here (filter data, etc.)
-              //   },
-              // )
-            ],
           ),
         ),
-        // 16.verticalSpace,
         Assets.images.lifeSignal.image(
           width: double.infinity,
           // height: 150.h,
           fit: BoxFit.cover,
         ),
-        PatientsTrendChart(),
-        // DigiHealthLineChart(
-        //   totalValue: 95636,
-        //   spots: const [
-        //     FlSpot(0, 120),
-        //     FlSpot(0.8, 80),
-        //     FlSpot(1.5, 300),
-        //     FlSpot(2.2, 250),
-        //     FlSpot(3, 450),
-        //     FlSpot(3.8, 380),
-        //     FlSpot(4.5, 620),
-        //     FlSpot(5.2, 580),
-        //     FlSpot(6, 850),
-        //     FlSpot(6.8, 720),
-        //     FlSpot(7.5, 503),
-        //   ],
-        // ),
-        // 16.verticalSpace,
-        // // Padding(
-        // //   padding: EdgeInsets.symmetric(horizontal: 20.w),
-        // //   child: Column(
-        // //     children: [
-        // //       _buildSmallStatCard(
-        // //         title: 'HTA',
-        // //         value: '2,543',
-        // //         color: const Color(0xFFFF6B6B),
-        // //       ),
-        // //       12.verticalSpace,
-        // //       _buildSmallStatCard(
-        // //         title: 'CANCER DU SEIN',
-        // //         value: '1,234',
-        // //         color: const Color(0xFFFF9F43),
-        // //       ),
-        // //       12.verticalSpace,
-        // //       _buildSmallStatCard(
-        // //         title: 'DIABÈTE',
-        // //         value: '3,456',
-        // //         color: const Color(0xFF00D2FF),
-        // //       ),
-        // //     ],
-        // //   ),
-        // // ),
       ],
     );
   }
@@ -423,7 +410,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildConsultations(WidgetRef ref, BuildContext context, String title,
-      String value, int female, int male, Widget icon) {
+      String value, String female, String male, Widget icon) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -476,7 +463,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   size: 15.sp,
                                 ),
                                 Text(
-                                  "$female%",
+                                  female,
                                   style: TextStyle(
                                     color: Colors.grey,
                                     fontSize: 7.sp,
@@ -494,7 +481,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   size: 15.sp,
                                 ),
                                 Text(
-                                  "$male%",
+                                  male,
                                   style: TextStyle(
                                     color: Colors.grey,
                                     fontSize: 7.sp,
@@ -532,7 +519,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildTrancheAge(WidgetRef ref, BuildContext context) {
+  Widget _buildTrancheAge(WidgetRef ref, BuildContext context, AgeModel ages) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -554,7 +541,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           // height: 150.h,
           fit: BoxFit.cover,
         ),
-        AgeDistributionBarChart()
+        AgeDistributionBarChart(
+          ages: ages,
+        )
       ],
     );
   }

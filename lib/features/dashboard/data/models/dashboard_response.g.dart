@@ -8,12 +8,12 @@ part of 'dashboard_response.dart';
 
 DashboardResponse _$DashboardResponseFromJson(Map<String, dynamic> json) =>
     DashboardResponse(
-      acte_soins: json['acte_soins'] == null
-          ? null
-          : SumModel.fromJson(json['acte_soins'] as Map<String, dynamic>),
       ages: json['ages'] == null
           ? null
           : AgeModel.fromJson(json['ages'] as Map<String, dynamic>),
+      acte_soins: json['acte_soins'] == null
+          ? null
+          : SumModel.fromJson(json['acte_soins'] as Map<String, dynamic>),
       annulationperummc: (json['annulationperummc'] as List<dynamic>?)
               ?.map(
                   (e) => AnnulationPerUmmc.fromJson(e as Map<String, dynamic>))
@@ -27,7 +27,7 @@ DashboardResponse _$DashboardResponseFromJson(Map<String, dynamic> json) =>
               [],
       avgcalldurationperspecialite:
           (json['avgcalldurationperspecialite'] as List<dynamic>?)
-                  ?.map((e) => AvgCallDurationPerSpecialiste.fromJson(
+                  ?.map((e) => AvgCallDurationPerSpecialite.fromJson(
                       e as Map<String, dynamic>))
                   .toList() ??
               [],
@@ -71,6 +71,11 @@ DashboardResponse _$DashboardResponseFromJson(Map<String, dynamic> json) =>
       evolutionbyspecialite: (json['evolutionbyspecialite'] as List<dynamic>?)
               ?.map((e) =>
                   EvolutionBySpecialite.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      evolutionbyspecialiste: (json['evolutionbyspecialiste'] as List<dynamic>?)
+              ?.map((e) =>
+                  EvolutionBySpecialiste.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
       evolutioncallduration: (json['evolutioncallduration'] as List<dynamic>?)
@@ -161,6 +166,7 @@ Map<String, dynamic> _$DashboardResponseToJson(DashboardResponse instance) =>
       'evacuation': instance.evacuation,
       'evolutionannulation': instance.evolutionannulation,
       'evolutionbyspecialite': instance.evolutionbyspecialite,
+      'evolutionbyspecialiste': instance.evolutionbyspecialiste,
       'evolutioncallduration': instance.evolutioncallduration,
       'evolutionteleexpertise': instance.evolutionteleexpertise,
       'evolutionteleexpertiseavg': instance.evolutionteleexpertiseavg,

@@ -35,18 +35,18 @@ class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {
       // Parse and return the response
       if (response.data != null) {
         // API wraps data in {"status":"success","data":{...}}
-        log('Dashboard API response status: ${response.data["status"]}');
+        print('Dashboard API response status: ${response.data["status"]}');
 
         final data = response.data["data"];
         if (data == null) {
           throw Exception('API response data field is null');
         }
 
-        log('Attempting to parse dashboard data...');
+        print('Attempting to parse dashboard data...${response.data["data"]}');
         final dashboardResponse = DashboardResponse.fromJson(data);
-        log('Dashboard data parsed successfully!');
-        log('Consultations: ${dashboardResponse.consultationGenerale?.sum}');
-        log('Specialities count: ${dashboardResponse.specialities?.length}');
+        print('Dashboard data parsed successfully!');
+        // print('Consultations: ${dashboardResponse.consultationGenerale?.sum}');
+        // print('Specialities count: ${dashboardResponse.specialities?.length}');
 
         return dashboardResponse;
       } else {

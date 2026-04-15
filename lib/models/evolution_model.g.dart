@@ -22,6 +22,24 @@ Map<String, dynamic> _$EvolutionBySpecialiteToJson(
       'count': instance.count,
     };
 
+EvolutionBySpecialiste _$EvolutionBySpecialisteFromJson(
+        Map<String, dynamic> json) =>
+    EvolutionBySpecialiste(
+      date_activite: json['date_activite'] as String,
+      specialite: json['specialite'] as String,
+      specialisteN: json['specialisteN'] as String?,
+      count: (json['count'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$EvolutionBySpecialisteToJson(
+        EvolutionBySpecialiste instance) =>
+    <String, dynamic>{
+      'date_activite': instance.date_activite,
+      'specialite': instance.specialite,
+      'specialisteN': instance.specialisteN,
+      'count': instance.count,
+    };
+
 EvolutionCallDuration _$EvolutionCallDurationFromJson(
         Map<String, dynamic> json) =>
     EvolutionCallDuration(
