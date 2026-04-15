@@ -1,12 +1,12 @@
 import 'package:digihealth/core/random/extention.dart';
 import 'package:digihealth/features/authentication/provider/auth_provider.dart';
+import 'package:digihealth/features/dashboard/presentation/widgets/bar_chart.dart';
 import 'package:digihealth/models/age_model.dart';
 import 'package:digihealth/models/evolution_model.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:intl/intl.dart';
 
 import '../../../generated_assets/assets.gen.dart';
@@ -16,6 +16,7 @@ import 'widgets/age_bar.dart';
 import 'widgets/border_painter.dart';
 import 'widgets/patient_chart.dart';
 import 'widgets/line_chart.dart';
+import 'widgets/pie_chart.dart';
 
 // Provider for the filter dropdown
 final selectedFilterProvider = StateProvider<String>((ref) => "Somme");
@@ -41,7 +42,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext context) {
     final dashboardState = ref.watch(dashboardProvider);
     final authState = ref.watch(authNotifierProvider);
-    final user = authState.user;
+
     final selectedFilter = ref.watch(selectedFilterProvider);
 
     return Scaffold(
@@ -109,6 +110,119 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               24.verticalSpace,
               _buildCumulPatient(ref, selectedFilter, context,
                   dashboardState.data?.evolutionteleexpertiseavg ?? []),
+              24.verticalSpace,
+              _buildPatientPerUmmc(ref, selectedFilter, context,
+                  dashboardState.data?.patientperummc ?? []),
+              24.verticalSpace,
+              _buildSingleValue(
+                ref,
+                context,
+                "TELE-EXPERTISES",
+                dashboardState.data?.teleexpertise?.sum.toFormattedString() ??
+                    'N/A',
+                "",
+                Assets.svg.priseEncharge.svg(
+                  width: 35.w,
+                  height: 35.h,
+                ),
+              ),
+              24.verticalSpace,
+              _buildTeleexpertisePerSpeciality(ref, selectedFilter, context,
+                  dashboardState.data?.specialities ?? []),
+              24.verticalSpace,
+              _buildSingleValue(
+                ref,
+                context,
+                "ACTES DE SOIN INFERMIERS",
+                dashboardState.data?.acte_soins?.sum.toFormattedString() ??
+                    'N/A',
+                "",
+                Assets.svg.priseEncharge.svg(
+                  width: 35.w,
+                  height: 35.h,
+                ),
+              ),
+              24.verticalSpace,
+              _buildSingleValue(
+                ref,
+                context,
+                "ÉVACUATIONS URGENTES",
+                dashboardState.data?.evacuation?.sum.toFormattedString() ??
+                    'N/A',
+                "",
+                Assets.svg.priseEncharge.svg(
+                  width: 35.w,
+                  height: 35.h,
+                ),
+              ),
+              24.verticalSpace,
+              _buildSingleValue(
+                ref,
+                context,
+                "ACTIVITÉS DE VACCINATION",
+                dashboardState.data?.vaccination?.sum.toFormattedString() ??
+                    'N/A',
+                "",
+                Assets.svg.priseEncharge.svg(
+                  width: 35.w,
+                  height: 35.h,
+                ),
+              ),
+              24.verticalSpace,
+              _buildSingleValue(
+                ref,
+                context,
+                "DÉPISTAGE DIABÈTE",
+                dashboardState.data?.depistagediabete?.sum
+                        .toFormattedString() ??
+                    'N/A',
+                "",
+                Assets.svg.priseEncharge.svg(
+                  width: 35.w,
+                  height: 35.h,
+                ),
+              ),
+              24.verticalSpace,
+              _buildSingleValue(
+                ref,
+                context,
+                "DÉPISTAGE HTA",
+                dashboardState.data?.depistagehta?.sum.toFormattedString() ??
+                    'N/A',
+                "",
+                Assets.svg.priseEncharge.svg(
+                  width: 35.w,
+                  height: 35.h,
+                ),
+              ),
+              24.verticalSpace,
+              _buildSingleValue(
+                ref,
+                context,
+                "CANCER DU SEIN",
+                dashboardState.data?.depistagecancersein?.sum
+                        .toFormattedString() ??
+                    'N/A',
+                "",
+                Assets.svg.priseEncharge.svg(
+                  width: 35.w,
+                  height: 35.h,
+                ),
+              ),
+              24.verticalSpace,
+              _buildSingleValue(
+                ref,
+                context,
+                "CANCER D'UTÈRUS",
+                dashboardState.data?.depistagecancercol?.sum
+                        .toFormattedString() ??
+                    'N/A',
+                "",
+                Assets.svg.priseEncharge.svg(
+                  width: 35.w,
+                  height: 35.h,
+                ),
+              ),
               // _buildTeleexpertise(ref, selectedFilter, context),
               // 24.verticalSpace,
 
@@ -260,6 +374,32 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
+  Widget _buildPatientPerUmmc(WidgetRef ref, String selectedFilter,
+      BuildContext context, dynamic data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitleWithLifesign(context, 'PATIENTS PAR UNITÉ'),
+        UmmcBarChart<PatientPerUmmc>(
+          data: data,
+          getLabel: (item) => item.ummc,
+          getValue: (item) => double.tryParse(item.total) ?? 0,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTeleexpertisePerSpeciality(WidgetRef ref, String selectedFilter,
+      BuildContext context, dynamic data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTitleWithLifesign(context, 'TÉLÉEXPERTISE PAR SPÉCIALITÉ'),
+        AgeDistributionChart(specialties: data ?? [])
+      ],
+    );
+  }
+
   Widget _buildTitleWithLifesign(BuildContext context, String title) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -365,6 +505,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     12.horizontalSpace,
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           value,
@@ -374,14 +515,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
-                          soustext,
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 7.sp,
-                            fontWeight: FontWeight.w400,
+                        if (soustext != "")
+                          Text(
+                            soustext,
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 7.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ],

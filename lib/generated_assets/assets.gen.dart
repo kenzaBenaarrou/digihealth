@@ -1,5 +1,3 @@
-// dart format width=80
-
 /// GENERATED CODE - DO NOT MODIFY BY HAND
 /// *****************************************************
 ///  FlutterGen
@@ -7,7 +5,7 @@
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
-// ignore_for_file: deprecated_member_use,directives_ordering,implicit_dynamic_list_literal,unnecessary_import
+// ignore_for_file: directives_ordering,unnecessary_import,implicit_dynamic_list_literal,deprecated_member_use
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -70,22 +68,22 @@ class $AssetsImagesGen {
 
   /// List of all assets
   List<AssetGenImage> get values => [
-        background,
-        circles,
-        consultationLogo,
-        cs,
-        cu,
-        diabete,
-        digihealth,
-        digihealthLogo,
-        hta,
-        kids,
-        lifeSignal,
-        loginPanel,
-        map,
-        mediot,
-        pni
-      ];
+    background,
+    circles,
+    consultationLogo,
+    cs,
+    cu,
+    diabete,
+    digihealth,
+    digihealthLogo,
+    hta,
+    kids,
+    lifeSignal,
+    loginPanel,
+    map,
+    mediot,
+    pni,
+  ];
 }
 
 class $AssetsSvgGen {
@@ -97,19 +95,54 @@ class $AssetsSvgGen {
   /// File path: assets/svg/cancer_sein.svg
   SvgGenImage get cancerSein => const SvgGenImage('assets/svg/cancer_sein.svg');
 
+  /// File path: assets/svg/cardiologist.svg
+  SvgGenImage get cardiologist =>
+      const SvgGenImage('assets/svg/cardiologist.svg');
+
   /// File path: assets/svg/consultation_generale.svg
   SvgGenImage get consultationGenerale =>
       const SvgGenImage('assets/svg/consultation_generale.svg');
 
+  /// File path: assets/svg/dermatologist.svg
+  SvgGenImage get dermatologist =>
+      const SvgGenImage('assets/svg/dermatologist.svg');
+
   /// File path: assets/svg/diabete.svg
   SvgGenImage get diabete => const SvgGenImage('assets/svg/diabete.svg');
+
+  /// File path: assets/svg/endocrinologist.svg
+  SvgGenImage get endocrinologist =>
+      const SvgGenImage('assets/svg/endocrinologist.svg');
+
+  /// File path: assets/svg/gynecologist.svg
+  SvgGenImage get gynecologist =>
+      const SvgGenImage('assets/svg/gynecologist.svg');
 
   /// File path: assets/svg/hta.svg
   SvgGenImage get hta => const SvgGenImage('assets/svg/hta.svg');
 
+  /// File path: assets/svg/nephrologist.svg
+  SvgGenImage get nephrologist =>
+      const SvgGenImage('assets/svg/nephrologist.svg');
+
+  /// File path: assets/svg/ophthalmologist.svg
+  SvgGenImage get ophthalmologist =>
+      const SvgGenImage('assets/svg/ophthalmologist.svg');
+
+  /// File path: assets/svg/orl.svg
+  SvgGenImage get orl => const SvgGenImage('assets/svg/orl.svg');
+
+  /// File path: assets/svg/pediatrician.svg
+  SvgGenImage get pediatrician =>
+      const SvgGenImage('assets/svg/pediatrician.svg');
+
   /// File path: assets/svg/prise_encharge.svg
   SvgGenImage get priseEncharge =>
       const SvgGenImage('assets/svg/prise_encharge.svg');
+
+  /// File path: assets/svg/pulmonologist.svg
+  SvgGenImage get pulmonologist =>
+      const SvgGenImage('assets/svg/pulmonologist.svg');
 
   /// File path: assets/svg/soins_infirmier.svg
   SvgGenImage get soinsInfirmier =>
@@ -124,16 +157,25 @@ class $AssetsSvgGen {
 
   /// List of all assets
   List<SvgGenImage> get values => [
-        cancerCol,
-        cancerSein,
-        consultationGenerale,
-        diabete,
-        hta,
-        priseEncharge,
-        soinsInfirmier,
-        teleExpertise,
-        urgence
-      ];
+    cancerCol,
+    cancerSein,
+    cardiologist,
+    consultationGenerale,
+    dermatologist,
+    diabete,
+    endocrinologist,
+    gynecologist,
+    hta,
+    nephrologist,
+    ophthalmologist,
+    orl,
+    pediatrician,
+    priseEncharge,
+    pulmonologist,
+    soinsInfirmier,
+    teleExpertise,
+    urgence,
+  ];
 }
 
 class Assets {
@@ -148,18 +190,12 @@ class Assets {
 }
 
 class AssetGenImage {
-  const AssetGenImage(
-    this._assetName, {
-    this.size,
-    this.flavors = const {},
-    this.animation,
-  });
+  const AssetGenImage(this._assetName, {this.size, this.flavors = const {}});
 
   final String _assetName;
 
   final Size? size;
   final Set<String> flavors;
-  final AssetGenImageAnimation? animation;
 
   Image image({
     Key? key,
@@ -214,15 +250,8 @@ class AssetGenImage {
     );
   }
 
-  ImageProvider provider({
-    AssetBundle? bundle,
-    String? package,
-  }) {
-    return AssetImage(
-      _assetName,
-      bundle: bundle,
-      package: package,
-    );
+  ImageProvider provider({AssetBundle? bundle, String? package}) {
+    return AssetImage(_assetName, bundle: bundle, package: package);
   }
 
   String get path => _assetName;
@@ -230,30 +259,12 @@ class AssetGenImage {
   String get keyName => _assetName;
 }
 
-class AssetGenImageAnimation {
-  const AssetGenImageAnimation({
-    required this.isAnimation,
-    required this.duration,
-    required this.frames,
-  });
-
-  final bool isAnimation;
-  final Duration duration;
-  final int frames;
-}
-
 class SvgGenImage {
-  const SvgGenImage(
-    this._assetName, {
-    this.size,
-    this.flavors = const {},
-  }) : _isVecFormat = false;
+  const SvgGenImage(this._assetName, {this.size, this.flavors = const {}})
+    : _isVecFormat = false;
 
-  const SvgGenImage.vec(
-    this._assetName, {
-    this.size,
-    this.flavors = const {},
-  }) : _isVecFormat = true;
+  const SvgGenImage.vec(this._assetName, {this.size, this.flavors = const {}})
+    : _isVecFormat = true;
 
   final String _assetName;
   final Size? size;
@@ -274,7 +285,6 @@ class SvgGenImage {
     String? semanticsLabel,
     bool excludeFromSemantics = false,
     _svg.SvgTheme? theme,
-    _svg.ColorMapper? colorMapper,
     ColorFilter? colorFilter,
     Clip clipBehavior = Clip.hardEdge,
     @deprecated Color? color,
@@ -294,7 +304,6 @@ class SvgGenImage {
         assetBundle: bundle,
         packageName: package,
         theme: theme,
-        colorMapper: colorMapper,
       );
     }
     return _svg.SvgPicture(
@@ -309,7 +318,8 @@ class SvgGenImage {
       placeholderBuilder: placeholderBuilder,
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
-      colorFilter: colorFilter ??
+      colorFilter:
+          colorFilter ??
           (color == null ? null : ColorFilter.mode(color, colorBlendMode)),
       clipBehavior: clipBehavior,
       cacheColorFilter: cacheColorFilter,

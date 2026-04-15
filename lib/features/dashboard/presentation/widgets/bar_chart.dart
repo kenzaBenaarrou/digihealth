@@ -5,64 +5,23 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/utils/chart_export_utils.dart';
 import 'border_painter.dart';
 
-/// A generic StatefulWidget that displays a trend chart with range slider functionality.
-/// Allows users to dynamically control which portion of the data is displayed.
-/// Works with any data type T by using transformer functions.
-///
-/// **Features:**
-/// - Range slider to zoom into specific data portions
-/// - Navigation buttons (Précédent/Suivant) to move the range
-/// - Export menu (PNG, JPG, PDF, CSV, XLSX)
-/// - Dynamic statistics (Début, Fin, Total)
-/// - Responsive design with flutter_screenutil
-/// - Dark futuristic theme with customizable colors
-///
-/// **Usage Example:**
-/// ```dart
-/// // Example 1: With PatientEvolution
-/// PatientsTrendChart<PatientEvolution>(
-///   data: patientData,
-///   chartTitle: 'Patients',
-///   getLabel: (item) => item.date,
-///   getValue: (item) => double.tryParse(item.total) ?? 0,
-///   lineColor: Color(0xFF00E5C0),
-///   accentColor: Colors.cyanAccent,
-/// )
-///
-/// // Example 2: With custom data type
-/// PatientsTrendChart<SalesData>(
-///   data: salesData,
-///   chartTitle: 'Revenue',
-///   getLabel: (item) => item.month,
-///   getValue: (item) => item.amount,
-///   lineColor: Colors.blue,
-///   accentColor: Colors.lightBlue,
-/// )
-/// ```
-class PatientsTrendChart<T> extends StatefulWidget {
-  final List<T>? data;
-  final String chartTitle;
+class UmmcBarChart<T> extends StatefulWidget {
+  final List<T> data;
+
   final String Function(T item) getLabel; // Extract date/label from item
   final double Function(T item) getValue; // Extract numeric value from item
-  final Color lineColor;
-  final Color accentColor;
-
-  const PatientsTrendChart({
-    super.key,
-    required this.data,
-    this.chartTitle = 'Patients',
-    required this.getLabel,
-    required this.getValue,
-    this.lineColor = const Color(0xFF00E5C0),
-    this.accentColor = Colors.cyanAccent,
-  });
+  const UmmcBarChart(
+      {super.key,
+      required this.data,
+      required this.getLabel,
+      required this.getValue});
 
   @override
-  State<PatientsTrendChart<T>> createState() => _PatientsTrendChartState<T>();
+  State<UmmcBarChart<T>> createState() => _UmmcBarChartState<T>();
 }
 
-class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
-  // Range values for the slider (start and end indices)
+class _UmmcBarChartState<T> extends State<UmmcBarChart<T>> {
+// Range values for the slider (start and end indices)
   RangeValues _currentRange = const RangeValues(0, 10);
 
   // Step size for "Précédent" and "Suivant" buttons
@@ -74,7 +33,7 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
   // Chart export utility - lazy getter
   ChartExportUtils get _exporter => ChartExportUtils(
         repaintBoundaryKey: _repaintBoundaryKey,
-        chartTitle: widget.chartTitle,
+        chartTitle: 'UMMC Patients',
       );
 
   @override
@@ -84,7 +43,7 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
   }
 
   @override
-  void didUpdateWidget(PatientsTrendChart<T> oldWidget) {
+  void didUpdateWidget(UmmcBarChart<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Reinitialize range if data changes
     if (widget.data != oldWidget.data) {
@@ -94,8 +53,8 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
 
   /// Initialize the range based on available data
   void _initializeRange() {
-    if (widget.data != null && widget.data!.isNotEmpty) {
-      final dataLength = widget.data!.length;
+    if (widget.data.isNotEmpty) {
+      final dataLength = widget.data.length;
       setState(() {
         _currentRange = RangeValues(
           0,
@@ -107,13 +66,13 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
 
   /// Get the visible portion of data based on current range
   List<T> get _visibleData {
-    if (widget.data == null || widget.data!.isEmpty) return [];
+    if (widget.data.isEmpty) return [];
 
     final startIndex = _currentRange.start.toInt();
     final endIndex =
-        (_currentRange.end.toInt() + 1).clamp(0, widget.data!.length);
+        (_currentRange.end.toInt() + 1).clamp(0, widget.data.length);
 
-    return widget.data!.sublist(startIndex, endIndex);
+    return widget.data.sublist(startIndex, endIndex);
   }
 
   /// Calculate total sum of visible data
@@ -124,11 +83,11 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
 
   /// Move range backward by navigation step
   void _moveToPrevious() {
-    if (widget.data == null || widget.data!.isEmpty) return;
+    if (widget.data.isEmpty) return;
 
     final rangeSize = _currentRange.end - _currentRange.start;
     final newStart = (_currentRange.start - _navigationStep)
-        .clamp(0.0, widget.data!.length - rangeSize - 1);
+        .clamp(0.0, widget.data.length - rangeSize - 1);
     final newEnd = newStart + rangeSize;
 
     setState(() {
@@ -138,10 +97,10 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
 
   /// Move range forward by navigation step
   void _moveToNext() {
-    if (widget.data == null || widget.data!.isEmpty) return;
+    if (widget.data.isEmpty) return;
 
     final rangeSize = _currentRange.end - _currentRange.start;
-    final maxEnd = widget.data!.length - 1.0;
+    final maxEnd = widget.data.length - 1.0;
     final newEnd =
         (_currentRange.end + _navigationStep).clamp(rangeSize, maxEnd);
     final newStart = newEnd - rangeSize;
@@ -174,9 +133,8 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
         : (_visibleData.length / 4).ceilToDouble();
 
     // Check if navigation buttons should be enabled
-    final canMovePrevious = widget.data != null && _currentRange.start > 0;
-    final canMoveNext =
-        widget.data != null && _currentRange.end < widget.data!.length - 1;
+    final canMovePrevious = _currentRange.start > 0;
+    final canMoveNext = _currentRange.end < widget.data.length - 1;
 
     return Stack(
       children: [
@@ -185,6 +143,7 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
           child: Container(
             decoration: BoxDecoration(
               color: const Color(0xFF0A1F38),
+              borderRadius: BorderRadius.circular(16.r),
             ),
             child: Stack(
               children: [
@@ -194,33 +153,6 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header with title (without export button)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                width: 8.w,
-                                height: 8.h,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF00E5C0),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              8.horizontalSpace,
-                              Text(
-                                widget.chartTitle,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      20.verticalSpace,
                       // Line Chart
                       SizedBox(
                         height: 220.h,
@@ -232,8 +164,8 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
                                       color: Colors.white60, fontSize: 14.sp),
                                 ),
                               )
-                            : LineChart(
-                                LineChartData(
+                            : BarChart(
+                                BarChartData(
                                   minY: 0, // Always start Y-axis from 0
                                   gridData: FlGridData(
                                     show: true,
@@ -276,26 +208,75 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
                                         interval: xAxisInterval,
                                         getTitlesWidget: (value, meta) {
                                           int index = value.toInt();
-                                          // Show max 4-5 dates evenly distributed with rotation
+                                          // Show max 5 UMMC labels evenly distributed
                                           if (index >= 0 &&
                                               index < _visibleData.length) {
-                                            return Padding(
-                                              padding: EdgeInsets.only(
-                                                  top: 8.h, right: 4.w),
-                                              child: Transform.rotate(
-                                                angle:
-                                                    -0.8, // ~-30 degrees for better readability
-                                                child: Text(
-                                                  widget.getLabel(
-                                                      _visibleData[index]),
-                                                  style: TextStyle(
-                                                    color: Colors.white60,
-                                                    fontSize: 8.5.sp,
+                                            // Calculate step size to show max 5 labels
+                                            final maxLabels = 5;
+                                            final dataLength =
+                                                _visibleData.length;
+
+                                            if (dataLength <= maxLabels) {
+                                              // Show all labels if 5 or fewer items
+                                              final label = widget.getLabel(
+                                                  _visibleData[index]);
+                                              final displayLabel = label
+                                                          .length >
+                                                      9
+                                                  ? '${label.substring(0, 9)}...'
+                                                  : label;
+                                              return Padding(
+                                                padding: EdgeInsets.only(
+                                                    top: 8.h, right: 4.w),
+                                                child: Transform.rotate(
+                                                  angle: -0.8,
+                                                  child: Text(
+                                                    displayLabel,
+                                                    style: TextStyle(
+                                                      color: Colors.white60,
+                                                      fontSize: 8.5.sp,
+                                                    ),
+                                                    textAlign: TextAlign.center,
                                                   ),
-                                                  textAlign: TextAlign.center,
                                                 ),
-                                              ),
-                                            );
+                                              );
+                                            } else {
+                                              // Show only 5 evenly distributed labels
+                                              final step = (dataLength - 1) /
+                                                  (maxLabels - 1);
+                                              final isLabelIndex =
+                                                  List.generate(
+                                                          maxLabels,
+                                                          (i) => (i * step)
+                                                              .round())
+                                                      .contains(index);
+
+                                              if (isLabelIndex) {
+                                                final label = widget.getLabel(
+                                                    _visibleData[index]);
+                                                final displayLabel = label
+                                                            .length >
+                                                        9
+                                                    ? '${label.substring(0, 9)}.......'
+                                                    : label;
+                                                return Padding(
+                                                  padding: EdgeInsets.only(
+                                                      top: 8.h, right: 4.w),
+                                                  child: Transform.rotate(
+                                                    angle: -0.8,
+                                                    child: Text(
+                                                      displayLabel,
+                                                      style: TextStyle(
+                                                        color: Colors.white60,
+                                                        fontSize: 8.5.sp,
+                                                      ),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                            }
                                           }
                                           return const Text('');
                                         },
@@ -309,58 +290,48 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
                                             SideTitles(showTitles: false)),
                                   ),
                                   borderData: FlBorderData(show: false),
-                                  lineBarsData: [
-                                    LineChartBarData(
-                                      spots: visibleSpots,
-                                      isCurved: true,
-                                      color: const Color(0xFF00E5C0),
-                                      barWidth: 2.8,
-                                      dotData: FlDotData(
-                                        show: true,
-                                        getDotPainter:
-                                            (spot, percent, barData, index) {
-                                          return FlDotCirclePainter(
-                                            radius: spot.y == 0 ? 0 : 3,
-                                            color: const Color(0xFF00E5C0),
-                                            strokeWidth: 0.5,
-                                          );
-                                        },
-                                      ),
-                                      belowBarData: BarAreaData(
-                                        show: true,
-                                        color: const Color(0xFF00E5C0)
-                                            .withOpacity(0.08),
-                                      ),
-                                    ),
-                                  ],
-                                  lineTouchData: LineTouchData(
+
+                                  barGroups:
+                                      visibleSpots.asMap().entries.map((entry) {
+                                    return BarChartGroupData(
+                                      x: entry.key,
+                                      barRods: [
+                                        BarChartRodData(
+                                          toY: entry.value.y,
+                                          color: const Color(0xFF00E5C0),
+                                          width: visibleSpots.length < 25
+                                              ? 8.w
+                                              : 1.w,
+                                          borderRadius:
+                                              BorderRadius.circular(4.r),
+                                        ),
+                                      ],
+                                    );
+                                  }).toList(),
+
+                                  barTouchData: BarTouchData(
                                     handleBuiltInTouches: true,
-                                    touchTooltipData: LineTouchTooltipData(
+                                    touchTooltipData: BarTouchTooltipData(
+                                      getTooltipItem:
+                                          (group, groupIndex, rod, rodIndex) {
+                                        final item =
+                                            _visibleData[group.x.toInt()];
+                                        final label = widget.getLabel(item);
+                                        final value = widget.getValue(item);
+                                        return BarTooltipItem(
+                                          '$label\n${value.toInt()}',
+                                          TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12.sp,
+                                              fontWeight: FontWeight.bold),
+                                        );
+                                      },
                                       tooltipRoundedRadius: 12,
                                       tooltipPadding:
                                           const EdgeInsets.symmetric(
                                               horizontal: 16, vertical: 10),
                                       tooltipBorder: const BorderSide(
                                           color: Color(0xFF00E5C0), width: 1.5),
-                                      getTooltipItems: (touchedSpots) {
-                                        return touchedSpots.map((spot) {
-                                          int index = spot.x.toInt();
-                                          String label = (widget.data != null &&
-                                                  index < widget.data!.length)
-                                              ? widget
-                                                  .getLabel(widget.data![index])
-                                              : "";
-
-                                          return LineTooltipItem(
-                                            "$label\n${widget.chartTitle}: ${spot.y.toInt()}",
-                                            TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 14.sp,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          );
-                                        }).toList();
-                                      },
                                     ),
                                   ),
                                 ),
@@ -417,8 +388,7 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
                             ),
                             12.verticalSpace,
                             // Range Slider
-                            if (widget.data != null && widget.data!.isNotEmpty)
-                              _buildRangeSlider(),
+                            if (widget.data.isNotEmpty) _buildRangeSlider(),
 
                             12.verticalSpace,
                             // Navigation Buttons
@@ -508,7 +478,7 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
 
   /// Build the range slider widget
   Widget _buildRangeSlider() {
-    final maxValue = widget.data!.length - 1.0;
+    final maxValue = widget.data.length - 1.0;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.w),
@@ -538,7 +508,7 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
               values: _currentRange,
               min: 0,
               max: maxValue,
-              divisions: widget.data!.length > 1 ? widget.data!.length - 1 : 1,
+              divisions: widget.data.length > 1 ? widget.data.length - 1 : 1,
               labels: RangeLabels(
                 _currentRange.start.toInt().toString(),
                 _currentRange.end.toInt().toString(),
@@ -576,7 +546,7 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
     );
   }
 
-  /// Build export menu button with format options
+  /// Build export dropdown menu
   Widget _buildExportMenu() {
     return PopupMenuButton<String>(
       icon: Icon(
@@ -593,38 +563,26 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
         ),
       ),
       offset: Offset(0, 40.h),
-      itemBuilder: (BuildContext context) => [
-        _buildExportMenuItem('PNG', Icons.image_outlined),
-        _buildExportMenuItem('JPG', Icons.photo_outlined),
-        _buildExportMenuItem('PDF', Icons.picture_as_pdf_outlined),
-        _buildExportMenuItem('CSV', Icons.table_chart_outlined),
-        _buildExportMenuItem('XLSX', Icons.grid_on_outlined),
-      ],
       onSelected: _handleExport,
+      itemBuilder: (context) => [
+        _buildMenuItem('PNG', Icons.image),
+        _buildMenuItem('JPG', Icons.photo),
+        _buildMenuItem('PDF', Icons.picture_as_pdf),
+        _buildMenuItem('CSV', Icons.table_chart),
+        _buildMenuItem('XLSX', Icons.description),
+      ],
     );
   }
 
-  /// Build individual export menu item
-  PopupMenuItem<String> _buildExportMenuItem(String format, IconData icon) {
+  /// Build a menu item
+  PopupMenuItem<String> _buildMenuItem(String text, IconData icon) {
     return PopupMenuItem<String>(
-      value: format,
-      height: 45.h,
+      value: text,
       child: Row(
         children: [
-          Icon(
-            icon,
-            color: Colors.cyanAccent,
-            size: 18.sp,
-          ),
-          12.horizontalSpace,
-          Text(
-            '.${format}',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Icon(icon, size: 18.sp, color: const Color(0xFF00E5C0)),
+          8.horizontalSpace,
+          Text(text),
         ],
       ),
     );
@@ -641,9 +599,9 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
       // Get date range from visible data
       String dateRange = '';
       if (_visibleData.isNotEmpty) {
-        final firstDate = widget.getLabel(_visibleData.first);
-        final lastDate = widget.getLabel(_visibleData.last);
-        dateRange = 'Période: $firstDate - $lastDate';
+        final firstLabel = widget.getLabel(_visibleData.first);
+        final lastLabel = widget.getLabel(_visibleData.last);
+        dateRange = 'UMMCs: $firstLabel - $lastLabel';
       }
       await _exporter.exportAsPdf(
         context: context,
@@ -655,6 +613,7 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
         data: _visibleData,
         getLabel: widget.getLabel,
         getValue: widget.getValue,
+        valueColumnName: 'Patients',
       );
     } else if (format == 'XLSX') {
       await _exporter.exportAsXlsx<T>(
@@ -662,6 +621,7 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
         data: _visibleData,
         getLabel: widget.getLabel,
         getValue: widget.getValue,
+        valueColumnName: 'Patients',
         includeTotal: true,
       );
     }
