@@ -5,7 +5,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'dashboard_provider.g.dart';
 
-/// Dashboard state representing different loading states
 class DashboardState {
   final DashboardResponse? data;
   final String? errorMessage;
@@ -17,7 +16,6 @@ class DashboardState {
     this.status = DashboardStatus.initial,
   });
 
-  /// Creates a copy of this state with updated fields
   DashboardState copyWith({
     DashboardResponse? data,
     String? errorMessage,
@@ -31,7 +29,6 @@ class DashboardState {
   }
 }
 
-/// Enum representing the various states of dashboard data loading
 enum DashboardStatus {
   initial,
   loading,
@@ -39,41 +36,47 @@ enum DashboardStatus {
   error,
 }
 
-/// Dashboard provider using modern Riverpod annotation style
-/// Manages dashboard data fetching and state
 @riverpod
 class Dashboard extends _$Dashboard {
   @override
   DashboardState build() {
-    // Initialize with default state
     return DashboardState();
   }
 
-  /// Fetches dashboard data from the repository
-  /// Updates state based on success or failure
-  Future<void> fetchDashboardData() async {
+  Future<void> fetchDashboardData({
+    String? region,
+    String? province,
+    String? ummc,
+    String? from,
+    String? to,
+    int? tranche,
+    bool? isItenerance,
+  }) async {
     try {
-      // Set loading state
       state = state.copyWith(status: DashboardStatus.loading);
 
-      // Fetch data from repository using ref.read
       final response =
-          await ref.read(dashboardRepositoryProvider).getDashboardData();
+          await ref.read(dashboardRepositoryProvider).getDashboardData(
+                region: region,
+                province: province,
+                ummc: ummc,
+                from: from,
+                to: to,
+                tranche: tranche,
+                isItenerance: isItenerance,
+              );
 
-      // Update state with successful data
       state = state.copyWith(
         status: DashboardStatus.success,
         data: response,
         errorMessage: null,
       );
     } on Failure catch (failure) {
-      // Handle domain-specific failures with proper error messages
       state = state.copyWith(
         status: DashboardStatus.error,
         errorMessage: failure.message,
       );
     } catch (e) {
-      // Handle any unexpected errors
       state = state.copyWith(
         status: DashboardStatus.error,
         errorMessage:
@@ -82,13 +85,26 @@ class Dashboard extends _$Dashboard {
     }
   }
 
-  /// Refreshes dashboard data
-  /// Can be used for pull-to-refresh functionality
-  Future<void> refresh() async {
-    await fetchDashboardData();
+  Future<void> refresh({
+    String? region,
+    String? province,
+    String? ummc,
+    String? from,
+    String? to,
+    int? tranche,
+    bool? isItenerance,
+  }) async {
+    await fetchDashboardData(
+      region: region,
+      province: province,
+      ummc: ummc,
+      from: from,
+      to: to,
+      tranche: tranche,
+      isItenerance: isItenerance,
+    );
   }
 
-  /// Clears any error state
   void clearError() {
     state = state.copyWith(
       errorMessage: null,
@@ -97,16 +113,12 @@ class Dashboard extends _$Dashboard {
   }
 }
 
-/// Provider to check if dashboard is currently loading
-/// Useful for showing loading indicators in the UI
 @riverpod
 bool isDashboardLoading(IsDashboardLoadingRef ref) {
   final dashboardState = ref.watch(dashboardProvider);
   return dashboardState.status == DashboardStatus.loading;
 }
 
-/// Provider to get dashboard error message if any
-/// Returns null if no error
 @riverpod
 String? dashboardError(DashboardErrorRef ref) {
   final dashboardState = ref.watch(dashboardProvider);
@@ -115,8 +127,6 @@ String? dashboardError(DashboardErrorRef ref) {
       : null;
 }
 
-/// Provider to get dashboard data if available
-/// Returns null if not loaded or error occurred
 @riverpod
 DashboardResponse? dashboardData(DashboardDataRef ref) {
   final dashboardState = ref.watch(dashboardProvider);

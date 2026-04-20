@@ -6,11 +6,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'border_painter.dart';
 
 class AgeDistributionBarChart extends StatelessWidget {
-  AgeModel ages;
-  AgeDistributionBarChart({super.key, required this.ages});
+  final AgeModel ages;
+  const AgeDistributionBarChart({super.key, required this.ages});
 
   @override
   Widget build(BuildContext context) {
+    // Calculate total to prevent division by zero
+    final total = (ages.femme ?? 0) + (ages.homme ?? 0);
+
+    // Helper function to safely calculate percentage
+    int safePercent(int? value) {
+      if (total == 0) return 0;
+      return (((value ?? 0) / total) * 100).round();
+    }
+
     return Container(
       color: const Color(0xFF0A1F38),
       child: Stack(
@@ -22,10 +31,7 @@ class AgeDistributionBarChart extends StatelessWidget {
                 _buildBarRow(
                   AgeBarData(
                     ageGroup: "0 à 6 ans",
-                    percent: (((ages.age_one ?? 0) /
-                                ((ages.femme ?? 0) + (ages.homme ?? 0))) *
-                            100)
-                        .round(),
+                    percent: safePercent(ages.age_one),
                     color: Colors.cyanAccent,
                   ),
                   context,
@@ -33,10 +39,7 @@ class AgeDistributionBarChart extends StatelessWidget {
                 _buildBarRow(
                   AgeBarData(
                     ageGroup: "7 à 14 ans",
-                    percent: (((ages.age_two ?? 0) /
-                                ((ages.femme ?? 0) + (ages.homme ?? 0))) *
-                            100)
-                        .round(),
+                    percent: safePercent(ages.age_two),
                     color: Colors.cyanAccent,
                   ),
                   context,
@@ -44,10 +47,7 @@ class AgeDistributionBarChart extends StatelessWidget {
                 _buildBarRow(
                   AgeBarData(
                     ageGroup: "15 à 24 ans",
-                    percent: (((ages.age_three ?? 0) /
-                                ((ages.femme ?? 0) + (ages.homme ?? 0))) *
-                            100)
-                        .round(),
+                    percent: safePercent(ages.age_three),
                     color: Colors.cyanAccent,
                   ),
                   context,
@@ -55,10 +55,7 @@ class AgeDistributionBarChart extends StatelessWidget {
                 _buildBarRow(
                   AgeBarData(
                     ageGroup: "25 à 64 ans",
-                    percent: (((ages.age_four ?? 0) /
-                                ((ages.femme ?? 0) + (ages.homme ?? 0))) *
-                            100)
-                        .round(),
+                    percent: safePercent(ages.age_four),
                     color: Colors.cyanAccent,
                   ),
                   context,
@@ -66,10 +63,7 @@ class AgeDistributionBarChart extends StatelessWidget {
                 _buildBarRow(
                   AgeBarData(
                     ageGroup: "+64 ans",
-                    percent: (((ages.age_five ?? 0) /
-                                ((ages.femme ?? 0) + (ages.homme ?? 0))) *
-                            100)
-                        .round(),
+                    percent: safePercent(ages.age_five),
                     color: Colors.cyanAccent,
                   ),
                   context,

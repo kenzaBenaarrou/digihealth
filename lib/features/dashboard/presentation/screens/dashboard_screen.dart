@@ -9,14 +9,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
-import '../../../generated_assets/assets.gen.dart';
-import '../../../models/patientper_model.dart';
-import '../provider/dashboard_provider.dart';
-import 'widgets/age_bar.dart';
-import 'widgets/border_painter.dart';
-import 'widgets/patient_chart.dart';
-import 'widgets/line_chart.dart';
-import 'widgets/pie_chart.dart';
+import '../../../../generated_assets/assets.gen.dart';
+import '../../../../models/patientper_model.dart';
+import '../../provider/dashboard_provider.dart';
+import '../../provider/filter_provider.dart';
+import '../widgets/advanced_analytics_bottom_sheet.dart';
+import '../widgets/age_bar.dart';
+import '../widgets/border_painter.dart';
+import '../widgets/filter_bottom_sheet.dart';
+import '../widgets/patient_chart.dart';
+import '../widgets/line_chart.dart';
+import '../widgets/pie_chart.dart';
+import 'dashboard_loading_screen.dart';
 
 // Provider for the filter dropdown
 final selectedFilterProvider = StateProvider<String>((ref) => "Somme");
@@ -44,6 +48,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final authState = ref.watch(authNotifierProvider);
 
     final selectedFilter = ref.watch(selectedFilterProvider);
+
+    // Show loading screen while fetching data
+    if (dashboardState.status == DashboardStatus.loading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFF051024),
+        body: DashboardLoadingScreen(),
+      );
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFF051024),
@@ -242,25 +254,121 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildTopBar() {
+    final filterState = ref.watch(filterProvider);
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 16.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
         children: [
           Assets.images.digihealthLogo.image(
             height: 25.h,
           ),
-          Container(
-            padding: EdgeInsets.all(5.sp),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.cyanAccent, width: 2),
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-            child: Icon(
-              Icons.notifications_outlined,
-              color: Colors.cyanAccent,
-              size: 20.sp,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Filter button with active indicator
+              Stack(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(5.sp),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.cyanAccent, width: 2),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        showFilterBottomSheet(
+                          context,
+                          onFilterApplied: (region, province, ummc, fromDate,
+                              toDate, tranche, isItinerance) {
+                            // Refresh dashboard with filters
+
+                            // Fetch dashboard data with filters
+                            ref
+                                .read(dashboardProvider.notifier)
+                                .fetchDashboardData(
+                                  region: region,
+                                  province: province,
+                                  ummc: ummc,
+                                  from: fromDate,
+                                  to: toDate,
+                                  tranche: tranche,
+                                  isItenerance: isItinerance,
+                                );
+                          },
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.filter_list,
+                            color: Colors.cyanAccent,
+                            size: 20.sp,
+                          ),
+                          3.horizontalSpace,
+                          Text(
+                            'Filtres',
+                            style: TextStyle(
+                              color: Colors.cyanAccent,
+                              fontSize: 12.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Active filter indicator
+                  if (filterState.currentSelection.hasSelection)
+                    Positioned(
+                      right: 2,
+                      top: 2,
+                      child: Container(
+                        width: 8.w,
+                        height: 8.h,
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFF051024),
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              8.horizontalSpace,
+              // Analytics button
+              InkWell(
+                onTap: () {
+                  showAdvancedAnalyticsBottomSheet(context);
+                },
+                child: Container(
+                  padding: EdgeInsets.all(5.sp),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.cyanAccent, width: 2),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.bar_chart_sharp,
+                        color: Colors.cyanAccent,
+                        size: 20.sp,
+                      ),
+                      3.horizontalSpace,
+                      Text(
+                        'Analyses',
+                        style: TextStyle(
+                          color: Colors.cyanAccent,
+                          fontSize: 12.sp,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -1285,4 +1393,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       ],
     );
   }
+}
+
+/// Helper function to show the filter bottom sheet
+void showFilterBottomSheet(
+  BuildContext context, {
+  Function(String? region, String? province, String? ummc, String? fromDate,
+          String? toDate, int? tranche, bool isItinerance)?
+      onFilterApplied,
+}) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) => FilterBottomSheet(onFilterApplied: onFilterApplied),
+  );
 }

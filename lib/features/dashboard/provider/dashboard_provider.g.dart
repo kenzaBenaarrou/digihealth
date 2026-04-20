@@ -9,10 +9,7 @@ part of 'dashboard_provider.dart';
 String _$isDashboardLoadingHash() =>
     r'c5c3fcabe26d41075d71f960a5a5f57271fd1743';
 
-/// Provider to check if dashboard is currently loading
-/// Useful for showing loading indicators in the UI
-///
-/// Copied from [isDashboardLoading].
+/// See also [isDashboardLoading].
 @ProviderFor(isDashboardLoading)
 final isDashboardLoadingProvider = AutoDisposeProvider<bool>.internal(
   isDashboardLoading,
@@ -29,10 +26,7 @@ final isDashboardLoadingProvider = AutoDisposeProvider<bool>.internal(
 typedef IsDashboardLoadingRef = AutoDisposeProviderRef<bool>;
 String _$dashboardErrorHash() => r'19aba80b947f3bc994410ebf24d863549e572293';
 
-/// Provider to get dashboard error message if any
-/// Returns null if no error
-///
-/// Copied from [dashboardError].
+/// See also [dashboardError].
 @ProviderFor(dashboardError)
 final dashboardErrorProvider = AutoDisposeProvider<String?>.internal(
   dashboardError,
@@ -49,10 +43,7 @@ final dashboardErrorProvider = AutoDisposeProvider<String?>.internal(
 typedef DashboardErrorRef = AutoDisposeProviderRef<String?>;
 String _$dashboardDataHash() => r'1437b32d65cab3bacd1c300c58bb6c9b98e0e28e';
 
-/// Provider to get dashboard data if available
-/// Returns null if not loaded or error occurred
-///
-/// Copied from [dashboardData].
+/// See also [dashboardData].
 @ProviderFor(dashboardData)
 final dashboardDataProvider = AutoDisposeProvider<DashboardResponse?>.internal(
   dashboardData,
@@ -67,12 +58,9 @@ final dashboardDataProvider = AutoDisposeProvider<DashboardResponse?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef DashboardDataRef = AutoDisposeProviderRef<DashboardResponse?>;
-String _$dashboardHash() => r'a0e1d1a2b70a922c6eeca34909ef7200c3a26aa1';
+String _$dashboardHash() => r'bf6af1142e198064515c7ff59989928802bff129';
 
-/// Dashboard provider using modern Riverpod annotation style
-/// Manages dashboard data fetching and state
-///
-/// Copied from [Dashboard].
+/// See also [Dashboard].
 @ProviderFor(Dashboard)
 final dashboardProvider =
     AutoDisposeNotifierProvider<Dashboard, DashboardState>.internal(

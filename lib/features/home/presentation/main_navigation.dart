@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../dashboard/presentation/dashboard_screen.dart';
+import '../../dashboard/presentation/screens/dashboard_screen.dart';
 import '../../map/presentation/map_screen.dart';
 import '../../programs/presentation/programs_screen.dart';
 import '../../profile/presentation/profile_screen.dart';

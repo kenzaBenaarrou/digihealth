@@ -19,11 +19,27 @@ class DashboardRepositoryImpl implements DashboardRepository {
   DashboardRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<DashboardResponse> getDashboardData() async {
+  Future<DashboardResponse> getDashboardData({
+    String? region,
+    String? province,
+    String? ummc,
+    String? from,
+    String? to,
+    int? tranche,
+    bool? isItenerance,
+  }) async {
     try {
       // Delegate to remote data source
       // In the future, you can add caching logic here
-      final response = await _remoteDataSource.getDashboardData();
+      final response = await _remoteDataSource.getDashboardData(
+        region: region,
+        province: province,
+        ummc: ummc,
+        from: from,
+        to: to,
+        tranche: tranche,
+        isItenerance: isItenerance,
+      );
       return response;
     } catch (e) {
       // Re-throw the error to be handled by the provider layer
