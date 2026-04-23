@@ -1,3 +1,5 @@
+import 'package:digihealth/core/widgets/global_app_bar.dart';
+import 'package:digihealth/features/programs/presentation/screens/consultation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,113 +9,116 @@ class ProgramsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF051024),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildTopBar(),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                children: [
-                  20.verticalSpace,
-                  _buildProgramCard(
-                    title: 'PROGRAMME VACCINATION',
-                    description: 'Campagne nationale de vaccination',
-                    participants: '8,234',
-                    progress: 0.75,
-                    color: const Color(0xFF00FFDD),
-                    icon: Icons.vaccines_outlined,
-                  ),
-                  16.verticalSpace,
-                  _buildProgramCard(
-                    title: 'DÉPISTAGE HTA',
-                    description: 'Hypertension artérielle',
-                    participants: '2,543',
-                    progress: 0.45,
-                    color: const Color(0xFFFF6B6B),
-                    icon: Icons.favorite_border,
-                  ),
-                  16.verticalSpace,
-                  _buildProgramCard(
-                    title: 'DÉPISTAGE DIABÈTE',
-                    description: 'Contrôle glycémie',
-                    participants: '3,456',
-                    progress: 0.60,
-                    color: const Color(0xFF00D2FF),
-                    icon: Icons.water_drop_outlined,
-                  ),
-                  16.verticalSpace,
-                  _buildProgramCard(
-                    title: 'CANCER DU SEIN',
-                    description: 'Mammographie préventive',
-                    participants: '1,234',
-                    progress: 0.30,
-                    color: const Color(0xFFFF9F43),
-                    icon: Icons.health_and_safety_outlined,
-                  ),
-                  16.verticalSpace,
-                  _buildProgramCard(
-                    title: 'SANTÉ MATERNELLE',
-                    description: 'Suivi grossesse',
-                    participants: '4,567',
-                    progress: 0.85,
-                    color: const Color(0xFFB794F6),
-                    icon: Icons.pregnant_woman,
-                  ),
-                  30.verticalSpace,
-                ],
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        backgroundColor: const Color(0xFF051024),
+        body: SafeArea(
+          child: Column(
+            children: [
+              const GlobalAppBar(),
+              _buildTabBar(),
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    ConsultationScreen(),
+                    _buildUpcomingTab(),
+                    _buildCompletedTab(),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildTopBar() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'PROGRAMMES',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
-                ),
-              ),
-              4.verticalSpace,
-              Text(
-                'Campagnes de santé actives',
-                style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 12.sp,
-                ),
-              ),
-            ],
-          ),
-          Container(
-            padding: EdgeInsets.all(8.sp),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.cyanAccent, width: 2),
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-            child: Icon(
-              Icons.add,
-              color: Colors.cyanAccent,
-              size: 24.sp,
-            ),
-          ),
+  Widget _buildTabBar() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0A1A2E),
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: Colors.cyanAccent.withOpacity(0.2), width: 1),
+      ),
+      child: TabBar(
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicator: BoxDecoration(
+          color: Colors.cyanAccent.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        labelColor: Colors.cyanAccent,
+        unselectedLabelColor: Colors.grey[500],
+        labelStyle: TextStyle(
+          fontSize: 13.sp,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.5,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontSize: 13.sp,
+          fontWeight: FontWeight.normal,
+        ),
+        tabs: const [
+          Tab(text: 'CONSULTATIONS'),
+          Tab(text: 'TÉLÉ-EXPERTISE'),
+          Tab(text: 'DÉPISTAGE'),
         ],
       ),
+    );
+  }
+
+  Widget _buildUpcomingTab() {
+    return ListView(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      children: [
+        20.verticalSpace,
+        _buildProgramCard(
+          title: 'CANCER DU SEIN',
+          description: 'Mammographie préventive',
+          participants: '1,234',
+          progress: 0.30,
+          color: const Color(0xFFFF9F43),
+          icon: Icons.health_and_safety_outlined,
+        ),
+        16.verticalSpace,
+        _buildProgramCard(
+          title: 'SANTÉ DENTAIRE',
+          description: 'Contrôle bucco-dentaire',
+          participants: '890',
+          progress: 0.15,
+          color: const Color(0xFF4ECDC4),
+          icon: Icons.medical_services_outlined,
+        ),
+        30.verticalSpace,
+      ],
+    );
+  }
+
+  Widget _buildCompletedTab() {
+    return ListView(
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
+      children: [
+        20.verticalSpace,
+        _buildProgramCard(
+          title: 'SANTÉ MATERNELLE',
+          description: 'Suivi grossesse',
+          participants: '4,567',
+          progress: 1.0,
+          color: const Color(0xFFB794F6),
+          icon: Icons.pregnant_woman,
+        ),
+        16.verticalSpace,
+        _buildProgramCard(
+          title: 'NUTRITION INFANTILE',
+          description: 'Programme alimentaire enfants',
+          participants: '3,210',
+          progress: 1.0,
+          color: const Color(0xFF95E1D3),
+          icon: Icons.child_care,
+        ),
+        30.verticalSpace,
+      ],
     );
   }
 

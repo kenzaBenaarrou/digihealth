@@ -468,7 +468,7 @@ class _UmmcBarChartState<T> extends State<UmmcBarChart<T>> {
         ),
         // Export button positioned outside RepaintBoundary (won't appear in screenshots)
         Positioned(
-          top: 15.h,
+          top: 0.h,
           right: 25.w,
           child: _buildExportMenu(),
         ),

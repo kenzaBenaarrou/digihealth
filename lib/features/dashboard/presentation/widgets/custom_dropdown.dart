@@ -4,11 +4,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class CustomDropdown extends StatefulWidget {
   final String selectedValue;
   final Function(String) onChanged;
+  final List<String> options;
+  final double? width;
 
   const CustomDropdown({
     super.key,
     required this.selectedValue,
     required this.onChanged,
+    this.options = const ['Moyenne', 'Somme'],
+    this.width,
   });
 
   @override
@@ -17,8 +21,6 @@ class CustomDropdown extends StatefulWidget {
 
 class _CustomDropdownState extends State<CustomDropdown> {
   bool _isExpanded = false;
-
-  final List<String> _options = ['Moyenne', 'Somme'];
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +33,9 @@ class _CustomDropdownState extends State<CustomDropdown> {
             setState(() => _isExpanded = !_isExpanded);
           },
           child: Container(
-            width: 90.w,
+            width: widget.width ?? 75.w,
             padding:
-                EdgeInsets.only(left: 14.w, right: 5.w, top: 5.h, bottom: 5.h),
+                EdgeInsets.only(left: 10.w, right: 1.w, top: 5.h, bottom: 5.h),
             decoration: BoxDecoration(
               color: const Color(0xFF0A1F38),
               borderRadius: BorderRadius.circular(8.r),
@@ -49,7 +51,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
                   widget.selectedValue,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 12.sp,
+                    fontSize: 9.sp,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -58,7 +60,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
                       ? Icons.keyboard_arrow_up
                       : Icons.keyboard_arrow_down,
                   color: Colors.cyanAccent,
-                  size: 14.sp,
+                  size: 12.sp,
                 ),
               ],
             ),
@@ -68,7 +70,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
         // Dropdown Menu
         if (_isExpanded)
           Container(
-            width: 90.w,
+            width: widget.width ?? 75.w,
             margin: EdgeInsets.only(top: 4.h),
             decoration: BoxDecoration(
               color: const Color(0xFF0A1F38),
@@ -79,7 +81,8 @@ class _CustomDropdownState extends State<CustomDropdown> {
               ),
             ),
             child: Column(
-              children: _options.map((option) {
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: widget.options.map((option) {
                 final isSelected = option == widget.selectedValue;
                 return GestureDetector(
                   onTap: () {
@@ -100,7 +103,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
                       option,
                       style: TextStyle(
                         color: isSelected ? Colors.cyanAccent : Colors.white,
-                        fontSize: 12.sp,
+                        fontSize: 9.sp,
                         fontWeight:
                             isSelected ? FontWeight.w600 : FontWeight.w400,
                       ),

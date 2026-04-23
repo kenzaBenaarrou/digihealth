@@ -89,50 +89,28 @@ class _AdvancedAnalyticsBottomSheetState
   /// Header with title and close button
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+      padding: EdgeInsets.only(top: 16.h),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Icon
-          Container(
-            padding: EdgeInsets.all(10.w),
-            decoration: BoxDecoration(
-              color: Colors.cyanAccent.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Icon(
-              Icons.bar_chart_sharp,
-              color: Colors.cyanAccent,
-              size: 24.sp,
-            ),
+          Icon(
+            Icons.bar_chart_sharp,
+            color: Colors.cyanAccent,
+            size: 24.sp,
           ),
           SizedBox(width: 12.w),
           // Title
-          Expanded(
-            child: Text(
-              'Analyses Avancées',
-              style: GoogleFonts.poppins(
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-                letterSpacing: 0.5,
-              ),
+          Text(
+            'Analyses Avancées',
+            style: GoogleFonts.poppins(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+              letterSpacing: 0.5,
             ),
           ),
           // Close button
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(
-              Icons.close_rounded,
-              color: Colors.white.withOpacity(0.7),
-              size: 24.sp,
-            ),
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.white.withOpacity(0.05),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.r),
-              ),
-            ),
-          ),
         ],
       ),
     );

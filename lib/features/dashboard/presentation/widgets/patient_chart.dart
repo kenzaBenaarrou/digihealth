@@ -166,7 +166,8 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
         ? visibleSpots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b)
         : 1000;
     // Calculate interval for Y-axis (start from 0, divide into ~5 sections)
-    final interval = maxY > 0 ? (maxY / 5).ceilToDouble() : 200.0;
+    final interval =
+        maxY > 0 ? (maxY < 1 ? maxY / 5 : (maxY / 5).ceilToDouble()) : 200.0;
 
 // Calculate X-axis interval to show max 4-5 dates with proper spacing
     final xAxisInterval = _visibleData.length <= 4
@@ -235,6 +236,10 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
                             : LineChart(
                                 LineChartData(
                                   minY: 0, // Always start Y-axis from 0
+                                  minX: 0, // Start X-axis from 0
+                                  maxX: visibleSpots.isNotEmpty
+                                      ? (visibleSpots.length - 1).toDouble()
+                                      : 1, // End X-axis at last data point
                                   gridData: FlGridData(
                                     show: true,
                                     horizontalInterval: interval,
@@ -261,7 +266,9 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
                                             );
                                           }
                                           return Text(
-                                            value.toInt().toString(),
+                                            value % 1 == 0
+                                                ? value.toInt().toString()
+                                                : value.toStringAsFixed(1),
                                             style: TextStyle(
                                                 color: Colors.white70,
                                                 fontSize: 11.sp),
@@ -313,22 +320,23 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
                                     LineChartBarData(
                                       spots: visibleSpots,
                                       isCurved: true,
-                                      color: const Color(0xFF00E5C0),
-                                      barWidth: 2.8,
+                                      color: widget.accentColor,
+                                      barWidth: 2,
                                       dotData: FlDotData(
                                         show: true,
                                         getDotPainter:
                                             (spot, percent, barData, index) {
                                           return FlDotCirclePainter(
-                                            radius: spot.y == 0 ? 0 : 3,
-                                            color: const Color(0xFF00E5C0),
+                                            radius: spot.y == 0 ? 0 : 1,
+                                            color: widget.accentColor,
+                                            strokeColor: widget.accentColor,
                                             strokeWidth: 0.5,
                                           );
                                         },
                                       ),
                                       belowBarData: BarAreaData(
                                         show: true,
-                                        color: const Color(0xFF00E5C0)
+                                        color: widget.accentColor
                                             .withOpacity(0.08),
                                       ),
                                     ),
@@ -336,12 +344,12 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
                                   lineTouchData: LineTouchData(
                                     handleBuiltInTouches: true,
                                     touchTooltipData: LineTouchTooltipData(
-                                      tooltipRoundedRadius: 12,
+                                      tooltipRoundedRadius: 10.r,
                                       tooltipPadding:
                                           const EdgeInsets.symmetric(
                                               horizontal: 16, vertical: 10),
-                                      tooltipBorder: const BorderSide(
-                                          color: Color(0xFF00E5C0), width: 1.5),
+                                      tooltipBorder: BorderSide(
+                                          color: widget.accentColor, width: 1),
                                       getTooltipItems: (touchedSpots) {
                                         return touchedSpots.map((spot) {
                                           int index = spot.x.toInt();
@@ -498,7 +506,7 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
         ),
         // Export button positioned outside RepaintBoundary (won't appear in screenshots)
         Positioned(
-          top: 15.h,
+          top: 0.h,
           right: 25.w,
           child: _buildExportMenu(),
         ),

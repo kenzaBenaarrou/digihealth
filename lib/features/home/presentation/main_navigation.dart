@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../dashboard/presentation/screens/dashboard_screen.dart';
 import '../../map/presentation/map_screen.dart';
-import '../../programs/presentation/programs_screen.dart';
+import '../../programs/presentation/screens/programs_screen.dart';
 import '../../profile/presentation/profile_screen.dart';
 
 // Provider to manage the selected tab index
@@ -25,6 +25,7 @@ class MainNavigation extends ConsumerWidget {
     ];
 
     return Scaffold(
+      
       body: IndexedStack(
         index: selectedIndex,
         children: screens,

@@ -275,7 +275,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
             color: Colors.cyanAccent,
             size: 24.sp,
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: 12.w),
           Text(
             'Filtrer les données',
             style: GoogleFonts.poppins(
