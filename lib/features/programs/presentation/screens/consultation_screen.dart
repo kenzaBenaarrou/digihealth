@@ -14,6 +14,7 @@ import '../../../dashboard/presentation/widgets/custom_dropdown.dart';
 import '../../../dashboard/provider/filter_provider.dart';
 import '../../data/models/consultation_response.dart';
 import '../../provider/consultation_provider.dart';
+import '../widgets/start_card.dart';
 
 class ConsultationScreen extends ConsumerStatefulWidget {
   const ConsultationScreen({super.key});
@@ -24,17 +25,16 @@ class ConsultationScreen extends ConsumerStatefulWidget {
 
 class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
     with AutomaticKeepAliveClientMixin {
-  // GlobalKey for RepaintBoundary to capture the chart
+  // === Global Keys for Chart Export ===
   final GlobalKey _consultationRepaintBoundaryKey = GlobalKey();
   final GlobalKey _evacuationRepaintBoundaryKey = GlobalKey();
 
-  // Dropdown state for evacuation evolution
+  // === Dropdown State ===
   String _evacuationEvolutionType = 'Somme';
   String _epathologieType = 'TOP 20';
-  String _consultationType = 'TOP 20';
+  String _consultationType = 'Somme';
 
-  // Chart export utility - lazy getter
-
+  // === Keep Alive ===
   @override
   bool get wantKeepAlive => true;
 
@@ -87,7 +87,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
     }
 
     if (state.status == ConsultationStatus.error) {
-      return _buildErrorWidget(state.errorMessage);
+      return ErrorWidget(state.errorMessage!);
     }
 
     if (state.data == null) {
@@ -102,7 +102,7 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
     final data = state.data!;
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(20.w),
+      padding: EdgeInsets.all(10.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -118,27 +118,26 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
                 data.consultationPerRegion!, data.maxDate, data.minDate),
             24.verticalSpace,
           ],
-          // consultation per unity
+          // Consultation per Unity
           if (data.consultationPerUmmc != null &&
               data.consultationPerUmmc!.isNotEmpty) ...[
             _buildSectionTitle('Consultation par Unité'),
             _buildConsPerUni(data.consultationPerUmmc!),
             24.verticalSpace,
           ],
-
           // Evolution Chart
           if (data.evolutionConsultations != null &&
               data.evolutionConsultations!.isNotEmpty) ...[
             _buildEvolutionChart(data),
             24.verticalSpace,
           ],
-
           // Pathologies
           if (data.pathologies != null && data.pathologies!.isNotEmpty) ...[
             _buildPathologiesList(data),
             24.verticalSpace,
           ],
 
+          // === Evacuation Charts ===
           // Evacuation per region
           if (data.evacuationPerRegion != null &&
               data.evacuationPerRegion!.isNotEmpty) ...[
@@ -167,33 +166,38 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
     );
   }
 
+  // === Summary Cards Section ===
+
   Widget _buildSummaryCards(ConsultationResponse data) {
     return Column(
       children: [
         Row(
           children: [
             Expanded(
-              child: _buildStatCard(
-                  'PRISE EN CHARGE',
-                  data.totalPriseEnCharge?.value.toFormattedString() ?? '0',
-                  Assets.svg.priseEncharge.svg(
+              child: StartCard(
+                  title: 'PRISE EN CHARGE',
+                  value:
+                      data.totalPriseEnCharge?.value.toFormattedString() ?? '0',
+                  icon: Assets.svg.priseEncharge.svg(
                     width: 30.w,
                     height: 30.h,
                   ),
-                  Colors.cyanAccent,
-                  "Moy ${data.totalPriseEnChargeAvg != null ? data.totalPriseEnChargeAvg!.value.toStringAsFixed(3) : '0'} /u/j"),
+                  color: Colors.cyanAccent,
+                  moyenne:
+                      "Moy ${data.totalPriseEnChargeAvg != null ? data.totalPriseEnChargeAvg!.value.toStringAsFixed(3) : '0'} /u/j"),
             ),
             5.horizontalSpace,
             Expanded(
-              child: _buildStatCard(
-                  'ÉVACUATIONS',
-                  data.evacuation?.value.toFormattedString() ?? '0',
-                  Assets.svg.priseEncharge.svg(
+              child: StartCard(
+                  title: 'ÉVACUATIONS',
+                  value: data.evacuation?.value.toFormattedString() ?? '0',
+                  icon: Assets.svg.priseEncharge.svg(
                     width: 30.w,
                     height: 30.h,
                   ),
-                  Colors.redAccent,
-                  "Moy ${data.evacuationAvg != null ? data.evacuationAvg!.value.toStringAsFixed(3) : '0'} /u/j"),
+                  color: Colors.redAccent,
+                  moyenne:
+                      "Moy ${data.evacuationAvg != null ? data.evacuationAvg!.value.toStringAsFixed(3) : '0'} /u/j"),
             ),
           ],
         ),
@@ -201,109 +205,34 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
         Row(
           children: [
             Expanded(
-              child: _buildStatCard(
-                  'CONSULTATIONS',
-                  data.consultationGenerale?.value.toFormattedString() ?? '0',
-                  Assets.svg.priseEncharge.svg(
+              child: StartCard(
+                  title: 'CONSULTATIONS',
+                  value: data.consultationGenerale?.value.toFormattedString() ??
+                      '0',
+                  icon: Assets.svg.priseEncharge.svg(
                     width: 30.w,
                     height: 30.h,
                   ),
-                  Colors.cyanAccent,
-                  "Moy ${data.consultationGeneraleAvg != null ? data.consultationGeneraleAvg!.value.toStringAsFixed(3) : '0'} /u/j"),
+                  color: Colors.cyanAccent,
+                  moyenne:
+                      "Moy ${data.consultationGeneraleAvg != null ? data.consultationGeneraleAvg!.value.toStringAsFixed(3) : '0'} /u/j"),
             ),
             5.horizontalSpace,
             Expanded(
-              child: _buildStatCard(
-                  'RÉFÉRENCES',
-                  data.referencement?.value.toFormattedString() ?? '0',
-                  Assets.svg.priseEncharge.svg(
+              child: StartCard(
+                  title: 'RÉFÉRENCES',
+                  value: data.referencement?.value.toFormattedString() ?? '0',
+                  icon: Assets.svg.priseEncharge.svg(
                     width: 30.w,
                     height: 30.h,
                   ),
-                  Colors.cyanAccent,
-                  "Moy ${data.referencementAvg != null ? data.referencementAvg!.value.toStringAsFixed(3) : '0'} /u/j"),
+                  color: Colors.cyanAccent,
+                  moyenne:
+                      "Moy ${data.referencementAvg != null ? data.referencementAvg!.value.toStringAsFixed(3) : '0'} /u/j"),
             ),
           ],
         ),
       ],
-    );
-  }
-
-  Widget _buildStatCard(
-      String title, String value, Widget icon, Color color, String moyenne) {
-    return Padding(
-      padding: EdgeInsets.all(8.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                  color: Colors.white,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0,
-                ),
-          ),
-          Assets.images.lifeSignal.image(
-            width: double.infinity,
-            // height: 150.h,
-            fit: BoxFit.cover,
-          ),
-          Container(
-            color: const Color(0xFF0A1F38),
-            child: Stack(
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 5.w,
-                    vertical: 15.h,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.only(left: 5.w),
-                        child: icon,
-                      ),
-                      12.horizontalSpace,
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            value,
-                            style: TextStyle(
-                              color: color,
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            moyenne,
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 7.sp,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: CornerBorderPainter(
-                      color: Colors.cyanAccent,
-                      strokeWidth: 1,
-                      cornerLength: 15,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -331,153 +260,12 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
 
   Widget _buildRegionChart(
       List<RegionData> regions, DateModel? maxdate, DateModel? mindate) {
-    final total = regions.fold(0, (sum, item) => sum + item.value);
-
-    return Stack(
-      children: [
-        RepaintBoundary(
-          key: _consultationRepaintBoundaryKey,
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFF0A1F38),
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Stack(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(8.w),
-                  child: Column(
-                    children: [
-                      // Pie Chart
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Depuis le ${mindate != null ? DateFormat("yyyy-MM-dd").format(DateTime.parse(mindate.dateActivite)) : 'N/A'} -- ${maxdate != null ? DateFormat("yyyy-MM-dd").format(DateTime.parse(maxdate.dateActivite)) : 'N/A'}",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 8.sp,
-                            ),
-                          ),
-                          Text.rich(
-                            TextSpan(
-                              text: "Total: ",
-                              children: [
-                                TextSpan(
-                                  text: "$total",
-                                  style: TextStyle(
-                                    color: Colors.cyanAccent,
-                                    fontSize: 8.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 8.sp,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      10.verticalSpace,
-                      SizedBox(
-                        height: 250.h,
-                        child: PieChart(
-                          PieChartData(
-                            sectionsSpace: 2,
-                            centerSpaceRadius: 50.r,
-                            sections: regions.map((region) {
-                              final percentage = total > 0
-                                  ? (region.value / total) * 100
-                                  : 0.0;
-                              return PieChartSectionData(
-                                color: _parseColor(region.color ?? '#00FFDD'),
-                                value: region.value.toDouble(),
-                                title: '${percentage.toStringAsFixed(1)}%',
-                                titleStyle: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                                radius: 80.r,
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-
-                      16.verticalSpace,
-
-                      // Legend
-                      Wrap(
-                        spacing: 12.w,
-                        runSpacing: 8.h,
-                        alignment: WrapAlignment.center,
-                        children: regions.map((region) {
-                          return Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 12.w,
-                                height: 12.h,
-                                decoration: BoxDecoration(
-                                  color: _parseColor(region.color ?? '#00FFDD'),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              6.horizontalSpace,
-                              Text(
-                                region.region.length > 30
-                                    ? '${region.region.substring(0, 30)}...'
-                                    : region.region,
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontSize: 10.sp,
-                                ),
-                              ),
-                              4.horizontalSpace,
-                              Text(
-                                '(${region.value})',
-                                style: TextStyle(
-                                  color: _parseColor(region.color ?? '#00FFDD'),
-                                  fontSize: 10.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ),
-                ),
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: CornerBorderPainter(
-                      color: Colors.cyanAccent,
-                      strokeWidth: 1,
-                      cornerLength: 15,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        Positioned(
-          top: 30.h,
-          right: 5.w,
-          child: ChartExportMenu<RegionData>(
-            repaintBoundaryKey: _consultationRepaintBoundaryKey,
-            chartTitle: 'Consultation par régions',
-            data: regions,
-            getLabel: (item) => item.region,
-            getValue: (item) => double.parse(item.sum),
-            valueColumnName: 'Sum',
-          ),
-        ),
-      ],
+    return _buildPieChartWidget(
+      regions: regions,
+      repaintBoundaryKey: _consultationRepaintBoundaryKey,
+      chartTitle: 'Consultation par régions',
+      minDate: mindate,
+      maxDate: maxdate,
     );
   }
 
@@ -619,153 +407,12 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
 
   Widget _buildEvacuationPerRegion(
       List<RegionData> regions, DateModel? maxdate, DateModel? mindate) {
-    final total = regions.fold(0, (sum, item) => sum + item.value);
-
-    return Stack(
-      children: [
-        RepaintBoundary(
-          key: _evacuationRepaintBoundaryKey,
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFF0A1F38),
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: Stack(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(8.w),
-                  child: Column(
-                    children: [
-                      // Pie Chart
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Depuis le ${mindate != null ? DateFormat("yyyy-MM-dd").format(DateTime.parse(mindate.dateActivite)) : 'N/A'} -- ${maxdate != null ? DateFormat("yyyy-MM-dd").format(DateTime.parse(maxdate.dateActivite)) : 'N/A'}",
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 8.sp,
-                            ),
-                          ),
-                          Text.rich(
-                            TextSpan(
-                              text: "Total: ",
-                              children: [
-                                TextSpan(
-                                  text: "$total",
-                                  style: TextStyle(
-                                    color: Colors.cyanAccent,
-                                    fontSize: 8.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 8.sp,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      10.verticalSpace,
-                      SizedBox(
-                        height: 250.h,
-                        child: PieChart(
-                          PieChartData(
-                            sectionsSpace: 2,
-                            centerSpaceRadius: 50.r,
-                            sections: regions.map((region) {
-                              final percentage = total > 0
-                                  ? (region.value / total) * 100
-                                  : 0.0;
-                              return PieChartSectionData(
-                                color: _parseColor(region.color ?? '#00FFDD'),
-                                value: region.value.toDouble(),
-                                title: '${percentage.toStringAsFixed(1)}%',
-                                titleStyle: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                                radius: 80.r,
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-
-                      16.verticalSpace,
-
-                      // Legend
-                      Wrap(
-                        spacing: 12.w,
-                        runSpacing: 8.h,
-                        alignment: WrapAlignment.center,
-                        children: regions.map((region) {
-                          return Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 12.w,
-                                height: 12.h,
-                                decoration: BoxDecoration(
-                                  color: _parseColor(region.color ?? '#00FFDD'),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              6.horizontalSpace,
-                              Text(
-                                region.region.length > 30
-                                    ? '${region.region.substring(0, 30)}...'
-                                    : region.region,
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontSize: 10.sp,
-                                ),
-                              ),
-                              4.horizontalSpace,
-                              Text(
-                                '(${region.value})',
-                                style: TextStyle(
-                                  color: _parseColor(region.color ?? '#00FFDD'),
-                                  fontSize: 10.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ),
-                ),
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: CornerBorderPainter(
-                      color: Colors.cyanAccent,
-                      strokeWidth: 1,
-                      cornerLength: 15,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        Positioned(
-          top: 30.h,
-          right: 5.w,
-          child: ChartExportMenu<RegionData>(
-            repaintBoundaryKey: _evacuationRepaintBoundaryKey,
-            chartTitle: 'Consultation par régions',
-            data: regions,
-            getLabel: (item) => item.region,
-            getValue: (item) => double.parse(item.sum),
-            valueColumnName: 'Sum',
-          ),
-        ),
-      ],
+    return _buildPieChartWidget(
+      regions: regions,
+      repaintBoundaryKey: _evacuationRepaintBoundaryKey,
+      chartTitle: 'Évacuation par régions',
+      minDate: mindate,
+      maxDate: maxdate,
     );
   }
 
@@ -841,49 +488,163 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
       ],
     );
   }
-  // Widget _buildEvolutionEvacuation(List<EvolutionData> evolution) {
-  //   return
-  // }
 
-  Widget _buildErrorWidget(String? errorMessage) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(20.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, color: Colors.redAccent, size: 64.sp),
-            16.verticalSpace,
-            Text(
-              'Erreur',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20.sp,
-                fontWeight: FontWeight.bold,
-              ),
+  // === Reusable Components ===
+
+  /// Builds a reusable pie chart with legend and export menu
+  Widget _buildPieChartWidget({
+    required List<RegionData> regions,
+    required GlobalKey repaintBoundaryKey,
+    required String chartTitle,
+    DateModel? minDate,
+    DateModel? maxDate,
+  }) {
+    final total = regions.fold(0, (sum, item) => sum + item.value);
+
+    return Stack(
+      children: [
+        RepaintBoundary(
+          key: repaintBoundaryKey,
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF0A1F38),
+              borderRadius: BorderRadius.circular(12.r),
             ),
-            8.verticalSpace,
-            Text(
-              errorMessage ?? 'Une erreur est survenue',
-              style: TextStyle(color: Colors.grey[400], fontSize: 14.sp),
-              textAlign: TextAlign.center,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(8.w),
+                  child: Column(
+                    children: [
+                      // Date Range and Total Header
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Depuis le ${minDate != null ? DateFormat("yyyy-MM-dd").format(DateTime.parse(minDate.dateActivite)) : 'N/A'} -- ${maxDate != null ? DateFormat("yyyy-MM-dd").format(DateTime.parse(maxDate.dateActivite)) : 'N/A'}",
+                            style:
+                                TextStyle(color: Colors.grey, fontSize: 8.sp),
+                          ),
+                          Text.rich(
+                            TextSpan(
+                              text: "Total: ",
+                              children: [
+                                TextSpan(
+                                  text: "$total",
+                                  style: TextStyle(
+                                    color: Colors.cyanAccent,
+                                    fontSize: 8.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 8.sp),
+                            ),
+                          ),
+                        ],
+                      ),
+                      10.verticalSpace,
+                      // Pie Chart
+                      SizedBox(
+                        height: 250.h,
+                        child: PieChart(
+                          PieChartData(
+                            sectionsSpace: 2,
+                            centerSpaceRadius: 50.r,
+                            sections: regions.map((region) {
+                              final percentage = total > 0
+                                  ? (region.value / total) * 100
+                                  : 0.0;
+                              return PieChartSectionData(
+                                color: _parseColor(region.color ?? '#00FFDD'),
+                                value: region.value.toDouble(),
+                                title: '${percentage.toStringAsFixed(1)}%',
+                                titleStyle: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                                radius: 80.r,
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                      16.verticalSpace,
+                      // Legend
+                      Wrap(
+                        spacing: 12.w,
+                        runSpacing: 8.h,
+                        alignment: WrapAlignment.center,
+                        children: regions.map((region) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 12.w,
+                                height: 12.h,
+                                decoration: BoxDecoration(
+                                  color: _parseColor(region.color ?? '#00FFDD'),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              6.horizontalSpace,
+                              Text(
+                                region.region.length > 30
+                                    ? '${region.region.substring(0, 30)}...'
+                                    : region.region,
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 10.sp,
+                                ),
+                              ),
+                              4.horizontalSpace,
+                              Text(
+                                '(${region.value})',
+                                style: TextStyle(
+                                  color: _parseColor(region.color ?? '#00FFDD'),
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: CornerBorderPainter(
+                      color: Colors.cyanAccent,
+                      strokeWidth: 1,
+                      cornerLength: 15,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            24.verticalSpace,
-            ElevatedButton(
-              onPressed: () {
-                ref.read(consultationProvider.notifier).fetchConsultationData();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.cyanAccent,
-                foregroundColor: const Color(0xFF051024),
-              ),
-              child: const Text('Réessayer'),
-            ),
-          ],
+          ),
         ),
-      ),
+        Positioned(
+          top: 30.h,
+          right: 5.w,
+          child: ChartExportMenu<RegionData>(
+            repaintBoundaryKey: repaintBoundaryKey,
+            chartTitle: chartTitle,
+            data: regions,
+            getLabel: (item) => item.region,
+            getValue: (item) => double.parse(item.sum),
+            valueColumnName: 'Sum',
+          ),
+        ),
+      ],
     );
   }
+
+  // === Utility Methods ===
 
   Color _parseColor(String colorString) {
     try {
@@ -892,4 +653,5 @@ class _ConsultationScreenState extends ConsumerState<ConsultationScreen>
       return const Color(0xFF00FFDD);
     }
   }
+
 }

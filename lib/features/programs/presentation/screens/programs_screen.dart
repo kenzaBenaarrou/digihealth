@@ -1,5 +1,7 @@
 import 'package:digihealth/core/widgets/global_app_bar.dart';
 import 'package:digihealth/features/programs/presentation/screens/consultation_screen.dart';
+import 'package:digihealth/features/programs/presentation/screens/depistage_screen.dart';
+import 'package:digihealth/features/programs/presentation/screens/teleexpertise_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -22,8 +24,8 @@ class ProgramsScreen extends ConsumerWidget {
                 child: TabBarView(
                   children: [
                     ConsultationScreen(),
-                    _buildUpcomingTab(),
-                    _buildCompletedTab(),
+                    TeleexpertiseScreen(),
+                    DepistageScreen(),
                   ],
                 ),
               ),
