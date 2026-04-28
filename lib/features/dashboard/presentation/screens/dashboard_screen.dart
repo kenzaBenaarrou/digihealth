@@ -1,5 +1,4 @@
 import 'package:digihealth/core/random/extention.dart';
-import 'package:digihealth/features/authentication/provider/auth_provider.dart';
 import 'package:digihealth/features/dashboard/presentation/widgets/bar_chart.dart';
 import 'package:digihealth/models/age_model.dart';
 import 'package:digihealth/models/evolution_model.dart';
