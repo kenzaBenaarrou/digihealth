@@ -205,7 +205,7 @@ class _PatientsTrendChartState<T> extends State<PatientsTrendChart<T>> {
                                 width: 8.w,
                                 height: 8.h,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF00E5C0),
+                                  color: widget.accentColor,
                                   shape: BoxShape.circle,
                                 ),
                               ),

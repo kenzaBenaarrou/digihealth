@@ -1,8 +1,13 @@
 import 'package:digihealth/core/random/extention.dart';
 import 'package:digihealth/features/dashboard/data/models/dashboard_response.dart';
+import 'package:digihealth/features/dashboard/presentation/widgets/bar_chart.dart';
+import 'package:digihealth/features/dashboard/presentation/widgets/patient_chart.dart';
 import 'package:digihealth/features/dashboard/provider/dashboard_provider.dart';
 import 'package:digihealth/features/programs/presentation/widgets/tele_start_widget.dart';
+import 'package:digihealth/models/annulation_model.dart';
+import 'package:digihealth/models/avgcall_model.dart';
 import 'package:digihealth/models/date_model.dart';
+import 'package:digihealth/models/evolution_model.dart';
 import 'package:digihealth/models/speciality_model.dart';
 import 'package:digihealth/models/teleexpertise_model.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -15,6 +20,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/widgets/chart_export_menu.dart';
 import '../../../../generated_assets/assets.gen.dart';
 import '../../../dashboard/presentation/widgets/border_painter.dart';
+import '../../../dashboard/presentation/widgets/custom_dropdown.dart';
 import '../widgets/start_card.dart';
 
 class TeleexpertiseScreen extends ConsumerStatefulWidget {
@@ -30,11 +36,9 @@ class _TeleexpertiseScreenState extends ConsumerState<TeleexpertiseScreen>
   final GlobalKey _specialityRepaintBoundaryKey = GlobalKey();
   final GlobalKey _rdvRepaintBoundaryKey = GlobalKey();
   final GlobalKey _regionRepaintBoundaryKey = GlobalKey();
-
-  @override
-  initState() {
-    super.initState();
-  }
+  String _teleexpertiseType = "Somme";
+  String? _selectedSpeciality;
+  String? _selectedSpecialiste;
 
   @override
   bool get wantKeepAlive => true;
@@ -120,6 +124,11 @@ class _TeleexpertiseScreenState extends ConsumerState<TeleexpertiseScreen>
                           (data.cancelled_rdv?.sum ?? 0))
                       .toDouble()),
             ],
+            if (data.consultationGenerale != null) ...[
+              16.verticalSpace,
+              _buildSectionTitle('Statut des RDV'),
+              _buildRDVStatut(data),
+            ],
             if (data.teleexpertiseperregion != null &&
                 data.teleexpertiseperregion!.isNotEmpty) ...[
               16.verticalSpace,
@@ -132,6 +141,128 @@ class _TeleexpertiseScreenState extends ConsumerState<TeleexpertiseScreen>
                 maxDate: data.maxDate,
               ),
             ],
+            if (data.teleexpertiseperummc != null &&
+                data.teleexpertiseperummc!.isNotEmpty) ...[
+              16.verticalSpace,
+              _buildSectionTitle('Répartition par Unité'),
+              UmmcBarChart<TeleExpertisePerUmmc>(
+                  data: data.teleexpertiseperummc ?? [],
+                  getLabel: (item) => item.ummc,
+                  getValue: (item) => double.parse(item.SUM))
+            ],
+            if (data.evolutionteleexpertise != null &&
+                data.evolutionteleexpertise!.isNotEmpty) ...[
+              16.verticalSpace,
+              _buildEvolutionChart(data),
+            ],
+            if (data.annulationperummc != null &&
+                data.annulationperummc!.isNotEmpty) ...[
+              16.verticalSpace,
+              _buildSectionTitle('Annulations par Unité'),
+              UmmcBarChart<AnnulationPerUmmc>(
+                  data: data.annulationperummc ?? [],
+                  getLabel: (item) => item.ummc,
+                  getValue: (item) => double.parse(item.cancelled))
+            ],
+            if (data.evolutionannulation != null &&
+                data.evolutionannulation!.isNotEmpty) ...[
+              16.verticalSpace,
+              _buildSectionTitle('Évolution des Annulations'),
+              PatientsTrendChart<EvolutionAnnulation>(
+                  chartTitle: "Annulations",
+                  data: data.evolutionannulation ?? [],
+                  getLabel: (item) => item.date,
+                  getValue: (item) => double.parse(item.cancelled))
+            ],
+            if (data.evolutionannulation != null &&
+                data.evolutionannulation!.isNotEmpty) ...[
+              16.verticalSpace,
+              _buildSectionTitle('Évolution du Taux de Télé-expertise'),
+              Text(
+                "values are not available for this chart",
+                style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+              ),
+            ],
+            if (data.evolutionbyspecialite != null &&
+                data.evolutionbyspecialite!.isNotEmpty) ...[
+              16.verticalSpace,
+              _buildEvolutionPerSpecChart(data),
+            ],
+            if (data.evolutionbyspecialiste != null &&
+                data.evolutionbyspecialiste!.isNotEmpty) ...[
+              16.verticalSpace,
+              _buildEvolutionPerSpecialisteChart(data),
+            ],
+            16.verticalSpace,
+            Divider(color: Colors.cyanAccent, height: 2.h),
+            16.verticalSpace,
+            Text(
+              "Durée des Télé-expertises",
+              style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                    color: Colors.cyanAccent,
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0,
+                  ),
+            ),
+            16.verticalSpace,
+            StartCard(
+              title: "Durée moyenne des appels",
+              value: "values are not available",
+              moyenne: "Durée moyenne par appel",
+              icon: Assets.svg.consultationGenerale.svg(
+                width: 30.w,
+                height: 30.w,
+              ),
+              color: Colors.cyanAccent,
+            ),
+            if (data.avgcalldurationperummc != null &&
+                data.avgcalldurationperummc!.isNotEmpty) ...[
+              16.verticalSpace,
+              _buildSectionTitle('Durée moyenne par Unité'),
+              UmmcBarChart<AvgCallDurationPerUmmc>(
+                  data: [...(data.avgcalldurationperummc ?? [])]
+                    ..sort((a, b) => double.parse(b.avg_duration)
+                        .compareTo(double.parse(a.avg_duration))),
+                  getLabel: (item) => item.ummc,
+                  getValue: (item) => double.parse(item.avg_duration))
+            ],
+               
+            if (data.avgcalldurationperspecialite != null &&
+                data.avgcalldurationperspecialite!.isNotEmpty) ...[ 
+  16.verticalSpace,
+              _buildSectionTitle('Durée moyenne par Spécialité'),
+              UmmcBarChart<AvgCallDurationPerSpecialite>(
+                  data: [...(data.avgcalldurationperspecialite ?? [])]
+                    ..sort((a, b) => double.parse(b.avg_duration)
+                        .compareTo(double.parse(a.avg_duration))),
+                  getLabel: (item) => item.specialite,
+                  getValue: (item) => double.parse(item.avg_duration))
+                ],
+                  if (data.avgcalldurationperspecialite != null &&
+                data.avgcalldurationperspecialite!.isNotEmpty) ...[ 
+  16.verticalSpace,
+              _buildSectionTitle('Durée moyenne par Spécialiste'),
+              UmmcBarChart<AvgCallDurationPerSpecialiste>(
+                  data: [...(data.avgcalldurationperspecialiste ?? [])]
+                    ..sort((a, b) => double.parse(b.avg_duration)
+                        .compareTo(double.parse(a.avg_duration))),
+                  getLabel: (item) => item.specialiste,
+                  getValue: (item) => double.parse(item.avg_duration))
+                ],
+                     if (data.avgcalldurationperummc != null &&
+                data.avgcalldurationperummc!.isNotEmpty) ...[
+              16.verticalSpace,
+              _buildSectionTitle('Evolution de la Durée moyenne'),
+              PatientsTrendChart<EvolutionCallDuration>(
+                chartTitle: "Durée moyenne",
+                  data: (data.evolutioncallduration ?? [])
+                    .where((item) => double.parse(item.avg_duration) >= 0)
+                    .toList(),
+                  getLabel: (item) => item.date_activite,
+                  getValue: (item) => double.parse(item.avg_duration))
+            ],
+               
           ],
         ),
       ),
@@ -635,7 +766,7 @@ class _TeleexpertiseScreenState extends ConsumerState<TeleexpertiseScreen>
           title,
           style: Theme.of(context).textTheme.displayMedium?.copyWith(
                 color: Colors.white,
-                fontSize: 18.sp,
+                fontSize: 16.sp,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0,
               ),
@@ -644,6 +775,362 @@ class _TeleexpertiseScreenState extends ConsumerState<TeleexpertiseScreen>
           width: double.infinity,
           // height: 150.h,
           fit: BoxFit.cover,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRDVStatut(DashboardResponse data) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF0A1F38),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Stack(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(8.w),
+            child: Column(
+              children: [
+                _buildStatusIndicator('Honorés', _parseColor("#00c4c4"),
+                    data.closed_rdv?.sum.toFormattedString() ?? "0"),
+                _buildStatusIndicator(
+                    'Non-Honorés',
+                    _parseColor("#ffd500"),
+                    ((data.honored_rdv?.sum ?? 0) +
+                            (data.reserved_rdv?.sum ?? 0))
+                        .toFormattedString()),
+                _buildStatusIndicator('Annulés', _parseColor("#2e678b"),
+                    data.cancelled_rdv?.sum.toFormattedString() ?? "0"),
+              ],
+            ),
+          ),
+          Positioned.fill(
+            child: CustomPaint(
+              painter: CornerBorderPainter(
+                color: Colors.cyanAccent,
+                strokeWidth: 1,
+                cornerLength: 15,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusIndicator(String label, Color color, String sum) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 6.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0A1F38),
+        borderRadius: BorderRadius.circular(5.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.cyanAccent.withOpacity(0.3),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 7.w,
+            height: 30.h,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(5.r),
+            ),
+          ),
+          6.horizontalSpace,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(color: Colors.grey[400], fontSize: 7.sp),
+              ),
+              5.verticalSpace,
+              Text(
+                sum,
+                style: TextStyle(color: Colors.cyanAccent, fontSize: 10.sp),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEvolutionChart(DashboardResponse data) {
+    return Stack(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Évolution de la Télé-expertise',
+              style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                    color: Colors.white,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0,
+                  ),
+            ),
+            Assets.images.lifeSignal.image(
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+            if (_teleexpertiseType == "Somme" &&
+                data.evolutionteleexpertise != null)
+              PatientsTrendChart<EvolutionTeleExpertise>(
+                  chartTitle: "Télé-expertises",
+                  data: data.evolutionteleexpertise!,
+                  getLabel: (e) => e.date_activite,
+                  getValue: (e) => double.tryParse(e.SUM) ?? 0)
+            else if (_teleexpertiseType == "Moyenne" &&
+                data.evolutionteleexpertiseavg != null)
+              PatientsTrendChart<EvolutionTeleExpertiseAvg>(
+                  chartTitle: "Moy",
+                  data: data.evolutionteleexpertiseavg!,
+                  getLabel: (e) => e.date_activite,
+                  getValue: (e) => double.tryParse(e.AVG) ?? 0)
+            else
+              Center(
+                child: Text(
+                  'Aucune donnée disponible',
+                  style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+                ),
+              ),
+          ],
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: Material(
+            color: Colors.transparent,
+            elevation: 8,
+            child: CustomDropdown(
+              selectedValue: _teleexpertiseType,
+              width: 80.w,
+              onChanged: (value) {
+                setState(() {
+                  _teleexpertiseType = value;
+                });
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEvolutionPerSpecChart(DashboardResponse data) {
+    // Initialize selected specialty if not set
+    if (_selectedSpeciality == null &&
+        data.specialities != null &&
+        data.specialities!.isNotEmpty) {
+      _selectedSpeciality = data.specialities!.first.specialite;
+    }
+
+    // Filter evolution data by selected specialty
+    final filteredData = data.evolutionbyspecialite
+            ?.where((item) => item.specialite == _selectedSpeciality)
+            .toList() ??
+        [];
+
+    // Get the color for the selected specialty
+    final selectedSpecialtyObj = data.specialities?.firstWhere(
+      (spec) => spec.specialite == _selectedSpeciality,
+      orElse: () => data.specialities!.first,
+    );
+    final specialtyColor = selectedSpecialtyObj?.color != null
+        ? _parseColor(selectedSpecialtyObj!.color!)
+        : Colors.cyanAccent;
+
+    return Stack(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Évolution par Spécialité',
+              style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                    color: Colors.white,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0,
+                  ),
+            ),
+            Assets.images.lifeSignal.image(
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+            if (filteredData.isNotEmpty)
+              PatientsTrendChart<EvolutionBySpecialite>(
+                  chartTitle: _selectedSpeciality ?? "Spécialité",
+                  data: filteredData,
+                  getLabel: (e) => e.date_activite,
+                  getValue: (e) => e.count.toDouble(),
+                  lineColor: specialtyColor,
+                  accentColor: specialtyColor)
+            else
+              Center(
+                child: Text(
+                  'Aucune donnée disponible pour cette spécialité',
+                  style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+                ),
+              ),
+          ],
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: Material(
+            color: Colors.transparent,
+            elevation: 8,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SvgPicture.asset(
+                  "assets/svg/${_selectedSpeciality?.toLowerCase() ?? 'cardiologist'}.svg",
+                  width: 16.w,
+                  height: 16.h,
+                ),
+                4.horizontalSpace,
+                Container(
+                  constraints: BoxConstraints(maxWidth: 110.w),
+                  child: CustomDropdown(
+                    selectedValue: _selectedSpeciality ?? '',
+                    width: 110.w,
+                    options: data.specialities
+                            ?.map((spec) => spec.specialite)
+                            .toList() ??
+                        [],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedSpeciality = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEvolutionPerSpecialisteChart(DashboardResponse data) {
+    // Initialize selected specialty if not set
+    if (_selectedSpecialiste == null &&
+        data.specialities != null &&
+        data.specialities!.isNotEmpty) {
+      _selectedSpecialiste =
+          "${data.evolutionbyspecialiste!.first.specialisteN}[${data.evolutionbyspecialiste!.first.specialite}]";
+    }
+
+    // Filter evolution data by selected specialty
+    final filteredData = data.evolutionbyspecialiste
+            ?.where((item) =>
+                "${item.specialisteN}[${item.specialite}]" ==
+                _selectedSpecialiste)
+            .toList() ??
+        [];
+
+    // Extract specialty name from selected string (between brackets)
+    String? specialtyName;
+    if (_selectedSpecialiste != null &&
+        _selectedSpecialiste!.contains('[') &&
+        _selectedSpecialiste!.contains(']')) {
+      final startIndex = _selectedSpecialiste!.indexOf('[');
+      final endIndex = _selectedSpecialiste!.indexOf(']');
+      specialtyName = _selectedSpecialiste!.substring(startIndex + 1, endIndex);
+    }
+
+    // Get the color for the selected specialty
+    final selectedSpecialtyObj = data.specialities?.firstWhere(
+      (spec) => spec.specialite == specialtyName,
+      orElse: () => data.specialities!.first,
+    );
+    final specialtyColor = selectedSpecialtyObj?.color != null
+        ? _parseColor(selectedSpecialtyObj!.color!)
+        : Colors.cyanAccent;
+
+    return Stack(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Évolution\npar Spécialiste',
+              style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                    color: Colors.white,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0,
+                  ),
+            ),
+            Assets.images.lifeSignal.image(
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+            if (filteredData.isNotEmpty)
+              PatientsTrendChart<EvolutionBySpecialiste>(
+                  chartTitle: _selectedSpecialiste ?? "Spécialiste",
+                  data: filteredData,
+                  getLabel: (e) => e.date_activite,
+                  getValue: (e) => e.count.toDouble(),
+                  lineColor: specialtyColor,
+                  accentColor: specialtyColor)
+            else
+              Center(
+                child: Text(
+                  'Aucune donnée disponible pour ce spécialiste',
+                  style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+                ),
+              ),
+          ],
+        ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: Material(
+            color: Colors.transparent,
+            elevation: 8,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SvgPicture.asset(
+                  "assets/svg/${specialtyName?.toLowerCase() ?? 'cardiologist'}.svg",
+                  width: 16.w,
+                  height: 16.h,
+                ),
+                4.horizontalSpace,
+                Container(
+                  constraints: BoxConstraints(maxWidth: 200.w),
+                  child: CustomDropdown(
+                    selectedValue: _selectedSpecialiste ?? '',
+                    width: 200.w,
+                    options: data.evolutionbyspecialiste
+                            ?.map((spec) =>
+                                "${spec.specialisteN}[${spec.specialite}]")
+                            .toSet()
+                            .toList() ??
+                        [],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedSpecialiste = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );

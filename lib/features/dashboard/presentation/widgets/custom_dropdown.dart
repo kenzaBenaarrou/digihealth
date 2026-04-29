@@ -6,6 +6,7 @@ class CustomDropdown extends StatefulWidget {
   final Function(String) onChanged;
   final List<String> options;
   final double? width;
+  final double? maxHeight;
 
   const CustomDropdown({
     super.key,
@@ -13,6 +14,7 @@ class CustomDropdown extends StatefulWidget {
     required this.onChanged,
     this.options = const ['Moyenne', 'Somme'],
     this.width,
+    this.maxHeight,
   });
 
   @override
@@ -47,12 +49,16 @@ class _CustomDropdownState extends State<CustomDropdown> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.selectedValue,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 9.sp,
-                    fontWeight: FontWeight.w500,
+                Expanded(
+                  child: Text(
+                    widget.selectedValue,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 9.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
                 Icon(
@@ -71,6 +77,9 @@ class _CustomDropdownState extends State<CustomDropdown> {
         if (_isExpanded)
           Container(
             width: widget.width ?? 75.w,
+            constraints: BoxConstraints(
+              maxHeight: widget.maxHeight ?? 200.h,
+            ),
             margin: EdgeInsets.only(top: 4.h),
             decoration: BoxDecoration(
               color: const Color(0xFF0A1F38),
@@ -80,37 +89,41 @@ class _CustomDropdownState extends State<CustomDropdown> {
                 width: 1.2,
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: widget.options.map((option) {
-                final isSelected = option == widget.selectedValue;
-                return GestureDetector(
-                  onTap: () {
-                    widget.onChanged(option);
-                    setState(() => _isExpanded = false);
-                  },
-                  child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 4.h),
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? Colors.cyanAccent.withOpacity(0.15)
-                          : null,
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Text(
-                      option,
-                      style: TextStyle(
-                        color: isSelected ? Colors.cyanAccent : Colors.white,
-                        fontSize: 9.sp,
-                        fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.w400,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: widget.options.map((option) {
+                  final isSelected = option == widget.selectedValue;
+                  return GestureDetector(
+                    onTap: () {
+                      widget.onChanged(option);
+                      setState(() => _isExpanded = false);
+                    },
+                    child: Container(
+                      margin: EdgeInsets.symmetric(vertical: 4.h),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? Colors.cyanAccent.withOpacity(0.15)
+                            : null,
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Text(
+                        option,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(
+                          color: isSelected ? Colors.cyanAccent : Colors.white,
+                          fontSize: 9.sp,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.w400,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                }).toList(),
+              ),
             ),
           ),
       ],
