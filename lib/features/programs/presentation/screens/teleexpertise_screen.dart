@@ -21,6 +21,7 @@ import '../../../../core/widgets/chart_export_menu.dart';
 import '../../../../generated_assets/assets.gen.dart';
 import '../../../dashboard/presentation/widgets/border_painter.dart';
 import '../../../dashboard/presentation/widgets/custom_dropdown.dart';
+import '../../../dashboard/provider/filter_provider.dart';
 import '../widgets/start_card.dart';
 
 class TeleexpertiseScreen extends ConsumerStatefulWidget {
@@ -45,11 +46,26 @@ class _TeleexpertiseScreenState extends ConsumerState<TeleexpertiseScreen>
   @override
   Widget build(BuildContext context) {
     final dashboardState = ref.watch(dashboardProvider);
+    final filterState = ref.watch(filterProvider);
+
     super.build(context);
 
     return RefreshIndicator(
       onRefresh: () async {
-        // Add your refresh logic here
+        final selection = filterState.currentSelection;
+        await ref.read(dashboardProvider.notifier).fetchDashboardData(
+              region: selection.region,
+              province: selection.province,
+              ummc: selection.ummc,
+              from: selection.fromDate != null
+                  ? DateFormat('yyyy-MM-dd').format(selection.fromDate!)
+                  : null,
+              to: selection.toDate != null
+                  ? DateFormat('yyyy-MM-dd').format(selection.toDate!)
+                  : null,
+              tranche: selection.tranche,
+              isItenerance: selection.isItinerance,
+            );
       },
       child: _buildContent(dashboardState),
     );
@@ -221,48 +237,46 @@ class _TeleexpertiseScreenState extends ConsumerState<TeleexpertiseScreen>
               16.verticalSpace,
               _buildSectionTitle('Durée moyenne par Unité'),
               UmmcBarChart<AvgCallDurationPerUmmc>(
-                  data: [...(data.avgcalldurationperummc ?? [])]
-                    ..sort((a, b) => double.parse(b.avg_duration)
-                        .compareTo(double.parse(a.avg_duration))),
+                  data: [...(data.avgcalldurationperummc ?? [])]..sort((a, b) =>
+                      double.parse(b.avg_duration)
+                          .compareTo(double.parse(a.avg_duration))),
                   getLabel: (item) => item.ummc,
                   getValue: (item) => double.parse(item.avg_duration))
             ],
-               
             if (data.avgcalldurationperspecialite != null &&
-                data.avgcalldurationperspecialite!.isNotEmpty) ...[ 
-  16.verticalSpace,
+                data.avgcalldurationperspecialite!.isNotEmpty) ...[
+              16.verticalSpace,
               _buildSectionTitle('Durée moyenne par Spécialité'),
               UmmcBarChart<AvgCallDurationPerSpecialite>(
-                  data: [...(data.avgcalldurationperspecialite ?? [])]
-                    ..sort((a, b) => double.parse(b.avg_duration)
-                        .compareTo(double.parse(a.avg_duration))),
+                  data: [...(data.avgcalldurationperspecialite ?? [])]..sort(
+                      (a, b) => double.parse(b.avg_duration)
+                          .compareTo(double.parse(a.avg_duration))),
                   getLabel: (item) => item.specialite,
                   getValue: (item) => double.parse(item.avg_duration))
-                ],
-                  if (data.avgcalldurationperspecialite != null &&
-                data.avgcalldurationperspecialite!.isNotEmpty) ...[ 
-  16.verticalSpace,
+            ],
+            if (data.avgcalldurationperspecialite != null &&
+                data.avgcalldurationperspecialite!.isNotEmpty) ...[
+              16.verticalSpace,
               _buildSectionTitle('Durée moyenne par Spécialiste'),
               UmmcBarChart<AvgCallDurationPerSpecialiste>(
-                  data: [...(data.avgcalldurationperspecialiste ?? [])]
-                    ..sort((a, b) => double.parse(b.avg_duration)
-                        .compareTo(double.parse(a.avg_duration))),
+                  data: [...(data.avgcalldurationperspecialiste ?? [])]..sort(
+                      (a, b) => double.parse(b.avg_duration)
+                          .compareTo(double.parse(a.avg_duration))),
                   getLabel: (item) => item.specialiste,
                   getValue: (item) => double.parse(item.avg_duration))
-                ],
-                     if (data.avgcalldurationperummc != null &&
+            ],
+            if (data.avgcalldurationperummc != null &&
                 data.avgcalldurationperummc!.isNotEmpty) ...[
               16.verticalSpace,
               _buildSectionTitle('Evolution de la Durée moyenne'),
               PatientsTrendChart<EvolutionCallDuration>(
-                chartTitle: "Durée moyenne",
+                  chartTitle: "Durée moyenne",
                   data: (data.evolutioncallduration ?? [])
-                    .where((item) => double.parse(item.avg_duration) >= 0)
-                    .toList(),
+                      .where((item) => double.parse(item.avg_duration) >= 0)
+                      .toList(),
                   getLabel: (item) => item.date_activite,
                   getValue: (item) => double.parse(item.avg_duration))
             ],
-               
           ],
         ),
       ),

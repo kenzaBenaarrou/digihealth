@@ -12,6 +12,9 @@ class DepistageScreen extends ConsumerStatefulWidget {
 class _DepistageScreenState extends ConsumerState<DepistageScreen> {
   @override
   Widget build(BuildContext context) {
+      // final depistageProvider = ref.read(depis)
+
     return Container();
+    
   }
 }

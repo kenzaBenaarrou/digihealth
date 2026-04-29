@@ -38,7 +38,7 @@ class ProgramsScreen extends ConsumerWidget {
 
   Widget _buildTabBar() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
+      margin: EdgeInsets.symmetric( vertical: 12.h),
       decoration: BoxDecoration(
         color: const Color(0xFF0A1A2E),
         borderRadius: BorderRadius.circular(12.r),
